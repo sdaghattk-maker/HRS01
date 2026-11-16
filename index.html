@@ -546,26 +546,92 @@ async function fetchUsdtRate(){
  if(!Number.isFinite(rate)||rate<=0)throw Error('نرخ تبدیل تتر به ریال از نوبیتکس دریافت نشد؛ نمایش قیمت دلاری متوقف شد تا قیمت ریالی اشتباه نشان داده نشود');
  return rate;
 }
-async function fetchKlines(symbol,interval,limit,usdtRate,toSecOverride=null){
+// HRS offline candle store: exchange + symbol + timeframe are isolated buckets.
+const HRS_DB_NAME='HRS_CANDLE_CACHE_V1',HRS_DB_VERSION=2,HRS_CACHE_LIMIT=50000;
+let hrsDbPromise=null;
+function hrsOpenDb(){
+ if(!('indexedDB' in window))return Promise.reject(Error('مرورگر IndexedDB را پشتیبانی نمی‌کند'));
+ if(!hrsDbPromise)hrsDbPromise=new Promise((resolve,reject)=>{
+  const req=indexedDB.open(HRS_DB_NAME,HRS_DB_VERSION);
+  req.onupgradeneeded=()=>{const db=req.result,tx=req.transaction,store=db.objectStoreNames.contains('candles')?tx.objectStore('candles'):db.createObjectStore('candles',{keyPath:['exchange','symbol','interval','t']});if(!store.indexNames.contains('bucket'))store.createIndex('bucket','bucket',{unique:false})};
+  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||Error('بازکردن حافظه آفلاین ناموفق بود'));
+ });
+ return hrsDbPromise;
+}
+function hrsBucketKey(exchange,symbol,interval){return {exchange:String(exchange).toUpperCase(),symbol:String(symbol).toUpperCase(),interval:String(interval)}}
+async function hrsReadCandles(exchange,symbol,interval){
+ try{const db=await hrsOpenDb();return await new Promise((resolve,reject)=>{const tx=db.transaction('candles','readonly'),k=hrsBucketKey(exchange,symbol,interval),bucket=k.exchange+'|'+k.symbol+'|'+k.interval,req=tx.objectStore('candles').index('bucket').getAll(IDBKeyRange.only(bucket));req.onsuccess=()=>{resolve(req.result.sort((a,b)=>a.t-b.t).map(({exchange,symbol,interval,bucket,...c})=>c))};req.onerror=()=>reject(req.error)})}
+ catch(e){console.warn('HRS offline cache read unavailable:',e);return []}
+}
+async function hrsSaveCandles(exchange,symbol,interval,bars){
+ if(!bars?.length)return;
+ try{
+  const db=await hrsOpenDb(),k=hrsBucketKey(exchange,symbol,interval);
+  await new Promise((resolve,reject)=>{
+   const tx=db.transaction('candles','readwrite'),store=tx.objectStore('candles'),bucket=k.exchange+'|'+k.symbol+'|'+k.interval,req=store.index('bucket').getAll(IDBKeyRange.only(bucket));
+   req.onsuccess=()=>{
+    const old=req.result,map=new Map(old.map(x=>[x.t,x]));
+    for(const c of bars){if(!Number.isFinite(Number(c.t)))continue;map.set(Number(c.t),{...k,bucket,t:Number(c.t),o:Number(c.o),h:Number(c.h),l:Number(c.l),c:Number(c.c),v:Number(c.v||0),buyV:c.buyV!=null&&Number.isFinite(Number(c.buyV))?Number(c.buyV):null})}
+    const sorted=[...map.values()].sort((a,b)=>a.t-b.t),keep=sorted.slice(-HRS_CACHE_LIMIT),keepTimes=new Set(keep.map(x=>x.t));
+    for(const x of old)if(!keepTimes.has(x.t))store.delete([k.exchange,k.symbol,k.interval,x.t]);
+    for(const x of keep)store.put(x);
+   };
+   req.onerror=()=>reject(req.error);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('ذخیره آفلاین لغو شد'));
+  });
+ }catch(e){console.warn('HRS offline cache write unavailable:',e)}
+}
+function hrsMergeCandles(...groups){
+ const map=new Map();for(const group of groups)for(const c of group||[])if(Number.isFinite(Number(c.t)))map.set(Number(c.t),{...c,t:Number(c.t)});
+ return [...map.values()].sort((a,b)=>a.t-b.t);
+}
+async function fetchKlinesPage(symbol,interval,countback,usdtRate,toSecOverride=null){
  const ex=selectedExchange(),resolution=interval==='1m'?'1':interval==='1d'?'D':interval==='4h'?'240':interval==='1h'?'60':interval==='15m'?'15':'5';
- const countback=Math.min(10000,Math.max(50,Number(limit)||10000));
- const secondsPerBar=resolution==='D'?86400:Number(resolution)*60;
- const to=toSecOverride!==null&&toSecOverride!==undefined&&Number.isFinite(Number(toSecOverride))?Math.floor(Number(toSecOverride)):Math.floor(Date.now()/1000),from=to-secondsPerBar*(countback+5);
+ const count=Math.min(1000,Math.max(50,Number(countback)||1000)),secondsPerBar=resolution==='D'?86400:Number(resolution)*60;
+ const to=toSecOverride!==null&&toSecOverride!==undefined&&Number.isFinite(Number(toSecOverride))?Math.floor(Number(toSecOverride)):Math.floor(Date.now()/1000),from=to-secondsPerBar*(count+5);
  let j,d,rate=usdtRate;
  if(ex==='BINANCE'){
   if(!symbol.endsWith('USDT'))throw Error('در بایننس فقط جفت‌های USDT پشتیبانی می‌شوند؛ مثلاً BTCUSDT');
-  j=await fetchJson(workerEndpoint('candles',{symbol,resolution,limit:countback,from,to},'BINANCE'));d=j.data;rate=1;
+  j=await fetchJson(workerEndpoint('candles',{symbol,resolution,limit:count,from,to},'BINANCE'));d=j.data;rate=1;
  }else{
   const qi=quoteInfo(symbol),market=qi.market;
-  j=await fetchJson(workerEndpoint('candles',{symbol:market,resolution,countback,from,to},'NOBITEX'));d=j.data;
+  j=await fetchJson(workerEndpoint('candles',{symbol:market,resolution,countback:count,from,to},'NOBITEX'));d=j.data;
   if(!Number.isFinite(rate)||rate<=0)throw Error('نرخ تبدیل USDT/IRT معتبر نیست');
  }
  if(d?.s!=='ok'||!Array.isArray(d.t)||!d.t.length)throw Error(d?.errmsg||`${ex} برای ${symbol} کندل ${interval} برنگرداند (وضعیت: ${d?.s||'نامشخص'})`);
  const n=d.t.length;if(!Array.isArray(d.o)||!Array.isArray(d.h)||!Array.isArray(d.l)||!Array.isArray(d.c)||d.o.length!==n||d.h.length!==n||d.l.length!==n||d.c.length!==n)throw Error('ساختار پاسخ کندل ناقص است');
  const out=d.t.map((t,i)=>({t:Number(t)*1000,o:Number(d.o[i])/rate,h:Number(d.h[i])/rate,l:Number(d.l[i])/rate,c:Number(d.c[i])/rate,v:Number(d.v?.[i]||0),buyV:Number.isFinite(Number(d.takerBuyBase?.[i]))?Number(d.takerBuyBase[i]):null})).filter(x=>[x.t,x.o,x.h,x.l,x.c,x.v].every(Number.isFinite)&&x.t>0&&x.h>=x.l&&x.h>=Math.max(x.o,x.c)&&x.l<=Math.min(x.o,x.c));
- out.sort((a,b)=>a.t-b.t);const dedup=out.filter((x,i)=>!i||x.t!==out[i-1].t);return dedup.slice(-Number(limit));
+ return hrsMergeCandles(out);
 }
-async function fetchKlinesChunked(symbol,interval,total,usdtRate){const size=9500,need=Math.max(50,Math.min(50000,Number(total)||10000));if(need<=10000)return fetchKlines(symbol,interval,need,usdtRate);const step=tfMinutes(interval)*60,now=Math.floor(Date.now()/1000),chunks=Math.ceil(need/size),jobs=[];for(let k=chunks-1;k>=0;k--){const count=Math.min(size,need-k*size),end=now-k*size*step;jobs.push(fetchKlines(symbol,interval,count,usdtRate,end))}const pages=await Promise.all(jobs),merged=pages.flat().sort((a,b)=>a.t-b.t),dedup=merged.filter((x,i)=>!i||x.t!==merged[i-1].t);return dedup.slice(-need)}
+async function fetchKlines(symbol,interval,limit,usdtRate,toSecOverride=null){
+ const ex=selectedExchange(),need=Math.max(50,Math.min(HRS_CACHE_LIMIT,Number(limit)||10000));
+ let merged=await hrsReadCandles(ex,symbol,interval),pageEnd=toSecOverride,first=true,lastError=null;
+ // Always refresh the newest page so the current candle is replaced when its OHLCV changes.
+ while(merged.length<need||first){
+  first=false;
+  try{
+   const page=await fetchKlinesPage(symbol,interval,1000,usdtRate,pageEnd);
+   if(!page.length)break;
+   const before=merged.length;merged=hrsMergeCandles(merged,page);
+   await hrsSaveCandles(ex,symbol,interval,page);
+   if(merged.length===before&&page.length<50)break;
+   if(merged.length>=need)break;
+   const oldest=merged[0]?.t;if(!Number.isFinite(oldest))break;
+   const nextEnd=Math.floor(oldest/1000)-1;
+   if(pageEnd!==null&&pageEnd!==undefined&&nextEnd>=Number(pageEnd))break;
+   pageEnd=nextEnd;
+   if(page.length<50)break;
+  }catch(e){lastError=e;break}
+ }
+ if(merged.length<need&&lastError&&merged.length<55)throw lastError;
+ if(!merged.length&&lastError)throw lastError;
+ // Return the requested tail; the store independently retains up to 50,000 bars per bucket.
+ return merged.slice(-need);
+}
+async function fetchKlinesChunked(symbol,interval,total,usdtRate){
+ const need=Math.max(50,Math.min(HRS_CACHE_LIMIT,Number(total)||10000));
+ return fetchKlines(symbol,interval,need,usdtRate);
+}
+
 async function fetchPrice(symbol,usdtRate){try{const ex=selectedExchange();if(ex==='BINANCE'){if(!symbol.endsWith('USDT'))return null;const j=await fetchJson(workerEndpoint('stats',{symbol},'BINANCE'));const d=j?.data||{};const px=Number(d.lastPrice),chg=Number(d.priceChangePercent);if(!Number.isFinite(px)||px<=0)return null;return {lastPrice:px,priceChangePercent:Number.isFinite(chg)?chg:0}}const {base}=quoteInfo(symbol);if(!Number.isFinite(usdtRate)||usdtRate<=0)return null;const j=await fetchJson(workerEndpoint('stats',{currency:base.toLowerCase(),quote:'rls'},'NOBITEX'));const stats=j?.data?.stats||{};const m=stats[`${base.toLowerCase()}-rls`]||stats[`${base.toLowerCase()}-irt`];if(!m)return null;const px=Number(m.latest)/usdtRate,chg=Number(m.dayChange);if(!Number.isFinite(px)||px<=0)return null;return {lastPrice:px,priceChangePercent:Number.isFinite(chg)?chg:0}}catch(e){return null}}
 async function refreshLivePrice(){
  if(!$('market'))return;const symbol=$('symbol').value.trim().toUpperCase();try{const now=Date.now();if(selectedExchange()==='NOBITEX'&&(!lastTickerRate||now-lastTickerRateAt>30000)){lastTickerRate=await fetchUsdtRate();lastTickerRateAt=now}const tick=await fetchPrice(symbol,selectedExchange()==='BINANCE'?1:lastTickerRate);if(!tick||!Number.isFinite(+tick.lastPrice)||+tick.lastPrice<=0)return;const el=$('lastprice'),old=lastLivePrice;lastLivePrice=+tick.lastPrice;updateLiveCandle(lastLivePrice);el.textContent=fmt(lastLivePrice);if($('dashPrice'))$('dashPrice').textContent=fmt(lastLivePrice);if($('dashPair'))$('dashPair').textContent=$('pair').textContent;el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');$('pricechange').textContent=`${fmt(+tick.priceChangePercent)}% · تغییر ۲۴ساعته · به‌روزرسانی ${new Date().toLocaleTimeString('fa-IR')}`;$('pricechange').className='change '+(+tick.priceChangePercent>=0?'green':'red');if($('dashChange')){$('dashChange').textContent=`تغییر ۲۴ساعته ${fmt(+tick.priceChangePercent)}%`;$('dashChange').className='dash-change '+(+tick.priceChangePercent>=0?'green':'red')} $('marketmeta').dataset.live='1';}catch(e){/* قیمت قبلی حفظ می‌شود؛ خطای موقت تیکر تحلیل را متوقف نمی‌کند */}
