@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10151c"><meta name="description" content="پنل موبایل تحلیل بازار با داده عمومی بایننس و نوبیتکس">
+<title>SMC / ICT — تحلیل بازار</title>
+<style>
+:root{--bg:#080d18;--panel:#101a2a;--border:#243653;--text:#edf3ff;--muted:#93a4bd;--gold:#f3c84b;--green:#20df91;--red:#ff5f70;--blue:#35b9ff;--violet:#9b82ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif}
+main{max-width:900px;margin:auto;padding:22px 18px 48px}.top{display:flex;justify-content:space-between;align-items:center;margin:8px 0 28px}.top h1{font-size:24px;margin:0;font-weight:700}.status{font-size:12px;color:var(--muted);display:flex;gap:7px;align-items:center}.dot{width:8px;height:8px;border-radius:50%;background:#7b8794}.dot.on{background:var(--green)}
+.row{display:flex;gap:10px;align-items:stretch}.controls{display:grid;grid-template-columns:1fr 110px 116px;gap:10px}.field{min-width:0}.field label{display:block;color:var(--muted);font-size:14px;margin:0 0 7px}.input,select{width:100%;height:62px;background:var(--panel);border:1px solid var(--border);border-radius:19px;color:var(--text);padding:0 16px;font-size:18px;outline:none}.input:focus,select:focus{border-color:var(--gold)}button{border:0;border-radius:18px;background:var(--gold);color:#171717;font-weight:700;font-size:17px;padding:0 22px;min-height:58px;cursor:pointer}button:disabled{opacity:.55}.quick{display:flex;gap:9px;justify-content:flex-start;flex-wrap:wrap;margin:20px 0 24px}.quick button{background:var(--panel);color:var(--muted);border:1px solid var(--border);min-height:48px;padding:0 20px;font-weight:500}.quick button.active{border-color:var(--gold);color:var(--gold)}
+.checkline{display:flex;align-items:center;gap:12px;color:var(--muted);margin:16px 0 24px;font-size:15px}.checkline input{width:20px;height:20px;accent-color:var(--gold)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.riskgrid{margin-top:4px}.actions{display:flex;gap:10px;margin-top:20px}.actions button{flex:1}.secondary{background:var(--panel);border:1px solid var(--border);color:var(--text)}
+.note{color:var(--muted);line-height:1.9;font-size:14px;margin:24px 0}.panel{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:16px;margin-top:18px}.panelhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.panel h2{font-size:17px;margin:0}.price{font-size:22px;font-weight:700;direction:ltr;text-align:left}.change{font-size:13px;color:var(--muted)}.chart-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:8px 0 10px}.chart-tools button{min-height:34px;padding:0 12px;border-radius:10px;font-size:13px;background:#121a23;color:var(--text);border:1px solid var(--border)}.chart-tools .toolhint{font-size:11px;color:var(--muted);margin-right:auto}.chart-wrap{touch-action:none;
+height:340px;min-height:190px;max-height:90vh;position:relative;resize:none;overflow:hidden;border-radius:12px;background:#111821;touch-action:none}.chart-wrap canvas{width:100%;height:100%;display:block;touch-action:none}.chart-resize{height:13px;display:flex;align-items:center;justify-content:center;cursor:ns-resize;touch-action:none;user-select:none}.chart-resize:after{content:"";width:48px;height:4px;border-radius:5px;background:#526174}.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-left:5px}.price.flash{color:var(--gold)}.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.metric{background:#121a23;border-radius:14px;padding:12px}.metric small{display:block;color:var(--muted);margin-bottom:6px}.metric strong{font-size:17px}.green{color:var(--green)}.red{color:var(--red)}.gold{color:var(--gold)}.result{line-height:1.9;color:var(--muted);font-size:14px}.footer{font-size:12px;color:#738092;text-align:center;margin-top:26px}
+@media(min-width:700px){main{padding-top:35px}.metrics{grid-template-columns:repeat(4,1fr)}.chart-wrap{touch-action:none;
+height:430px}}
+@media(max-width:480px){main{padding:18px 15px 35px}.top h1{font-size:21px}.controls{grid-template-columns:1fr 94px}.controls .symbol{grid-column:1/-1;grid-row:1}.controls .tf{grid-column:1}.controls .analyze{grid-column:2;grid-row:2}.input,select{height:58px}.grid2{gap:12px}.field label{font-size:13px}.note{font-size:13px}}
+.signal-audit{margin-top:16px;padding:14px;border:1px solid #354253;border-radius:16px;background:#121a23}.audit-head,.audit-subhead{display:flex;align-items:center;justify-content:space-between;gap:8px}.audit-head h3{font-size:16px;margin:0}.audit-subhead{font-size:14px;font-weight:700;margin:16px 0 9px}.issued-list,.history-list{display:grid;gap:8px;margin-top:10px}.issued-card,.history-row{background:#192431;border:1px solid #2c3b4c;border-radius:12px;padding:11px}.issued-top,.history-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.issued-name{font-weight:750}.issued-meta,.history-meta{font-size:12px;color:var(--muted);line-height:1.8}.issued-badge{font-size:12px;border-radius:20px;padding:4px 9px;background:#123b30;color:var(--green);white-space:nowrap}.issued-badge.sell{background:#421f27;color:var(--red)}.audit-empty{padding:12px;color:var(--muted);font-size:13px;background:#192431;border-radius:10px;line-height:1.8}.history-name{font-weight:700;font-size:13px}.history-value{font-weight:800;font-size:17px;white-space:nowrap}.history-value.good{color:var(--green)}.history-value.low{color:var(--gold)}.audit-foot{font-size:11px;line-height:1.9;color:var(--muted);margin:12px 0 0}@media(min-width:700px){.history-list{grid-template-columns:repeat(2,1fr)}}
+
+/* Dashboard composition: chart beside the decision panel on wide screens, stacked on phones */
+main{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(330px,.92fr);grid-template-areas:"head head" "controls controls" "connect connect" "symbols symbols" "live live" "advanced advanced" "note note" "market engine" "analysis analysis" "footer footer";gap:10px;align-content:start}
+.top{grid-area:head}.controls{grid-area:controls}.settings-fold#connectionSettings{grid-area:connect}.quick#quickSymbols{grid-area:symbols}.checkline#liveControl{grid-area:live}.settings-fold#advancedSettings{grid-area:advanced}.note#dataNote{grid-area:note}#market{grid-area:market;align-self:start}#engine{grid-area:engine;align-self:start}#analysis{grid-area:analysis}.footer{grid-area:footer}
+#market,#engine{margin-top:0}.quick-decision{margin-top:6px}
+@media(max-width:760px){main{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "controls" "connect" "symbols" "live" "advanced" "note" "engine" "market" "analysis" "footer";gap:8px}#market,#engine{margin-top:0}}
+/* HRS mobile-first decision dashboard */
+.settings-fold{margin:10px 0;border:1px solid #223754;border-radius:14px;background:#0c1626;padding:0 11px}.settings-fold summary{cursor:pointer;list-style:none;padding:11px 2px;color:#b7c7df;font-size:12px;font-weight:700}.settings-fold summary::-webkit-details-marker{display:none}.settings-fold summary:after{content:'＋';float:left;color:var(--gold)}.settings-fold[open] summary:after{content:'−'}.settings-fold[open]{padding-bottom:10px}
+
+body{background:radial-gradient(ellipse at 50% -15%,#17274a 0,#080d18 48%);padding-bottom:calc(82px + env(safe-area-inset-bottom));}
+main{max-width:1120px;padding:16px 14px 36px}
+.top{margin:3px 0 17px;padding:12px 14px;border:1px solid #263b62;border-radius:18px;background:linear-gradient(110deg,#101c33,#0b1221 58%,#17143a);box-shadow:0 10px 30px #0005}
+.top h1{font-size:20px;letter-spacing:.1px}.top h1:before{content:'HRS  /  ';color:var(--gold);font-weight:900}
+.controls{grid-template-columns: minmax(110px,.8fr) minmax(130px,1.3fr) 92px;gap:8px}
+.input,select{height:50px;border-radius:13px;background:#0d1727;border-color:#2b3d5b;font-size:15px;padding:0 12px}
+.controls .field label,.field label{font-size:12px;margin-bottom:5px}
+.quick{margin:12px 0;gap:7px}.quick button{min-height:38px;padding:0 15px;border-radius:12px;font-size:13px}
+.checkline{font-size:12px;margin:10px 0 14px}
+.riskgrid{padding:12px;border:1px solid #203451;border-radius:16px;background:#0d1625;gap:9px}
+.riskgrid .input,.riskgrid select{height:43px;font-size:13px}
+.actions{margin-top:12px}.actions button{min-height:46px;border-radius:13px;font-size:14px}
+.note{font-size:12px;line-height:1.75;margin:12px 2px;color:#8091aa}
+.panel{background:linear-gradient(155deg,#111e31,#0c1422);border:1px solid #263c60;border-radius:19px;padding:13px;margin-top:13px;box-shadow:0 12px 28px #0003}
+#engine{order:1}#market{order:2}
+.panelhead{margin-bottom:10px}.panel h2{font-size:15px}
+.metrics{gap:7px}.metric{background:#0b1422;border:1px solid #1e304c;border-radius:12px;padding:9px}.metric small{font-size:10px}.metric strong{font-size:13px}
+.metric .setup-history-inline{display:block;margin-top:6px;padding-top:5px;border-top:1px solid #203653;color:#a9bad3;font-size:10px;line-height:1.5}.metric .setup-history-inline b{color:#f4c84e;font-size:12px;direction:ltr;unicode-bidi:isolate}
+.chart-wrap{height:330px;background:#080f1b;border:1px solid #203451;border-radius:14px}
+.chart-tools button{min-height:31px;font-size:11px}
+.signal-audit{margin-top:12px;background:#0b1422;border:1px solid #253b5e;border-radius:15px;padding:11px}
+.audit-head h3{font-size:14px}.issued-card,.history-row{background:#101d30;border-color:#263c5d}
+.history-row{min-height:72px}.audit-foot{font-size:10px}
+.quick-decision{border:1px solid #28436b;border-radius:17px;padding:13px;background:linear-gradient(135deg,#111f35,#0a1423);margin:10px 0 13px;box-shadow:inset 0 1px #ffffff0b}
+.decision-main{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.decision-state{font-size:27px;font-weight:900;line-height:1.25;letter-spacing:.2px}
+.decision-state.buy{color:var(--green)}.decision-state.sell{color:var(--red)}.decision-state.wait{color:var(--gold)}
+.decision-sub{font-size:11px;color:var(--muted);line-height:1.7;margin-top:4px}
+.decision-score{min-width:82px;text-align:center;border:1px solid #315077;background:#0b1729;border-radius:13px;padding:9px 8px}
+.decision-score b{display:block;font-size:22px;color:#fff}.decision-score small{font-size:10px;color:var(--muted)}
+.decision-path{margin-top:10px;padding:8px 10px;border-radius:10px;background:#172943;color:#dbe9ff;font-size:12px;font-weight:700}
+.tf-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.tf-chip{padding:8px 5px;text-align:center;background:#0a1422;border:1px solid #203653;border-radius:11px;min-width:0}
+.tf-chip small{display:block;color:var(--muted);font-size:10px}.tf-chip b{font-size:12px;display:block;margin-top:3px}.tf-chip .up{color:var(--green)}.tf-chip .down{color:var(--red)}.tf-chip .flat{color:var(--gold)}
+.plan-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.plan-cell{background:#0a1422;border:1px solid #203653;border-radius:10px;padding:8px 6px;min-width:0}
+.plan-cell small{display:block;color:var(--muted);font-size:9px}.plan-cell b{display:block;font-size:12px;direction:ltr;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px}
+.plan-cell.entry{border-color:#7d8ba4}.plan-cell.stop{border-color:#713448}.plan-cell.target{border-color:#146448}
+.decision-reason{font-size:11px;color:#b5c4d9;line-height:1.7;margin-top:9px}
+.history-highlight{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:9px 0}
+.history-highlight>div{background:#0a1422;border:1px solid #203653;border-radius:10px;padding:8px;text-align:center}
+.history-highlight b{display:block;font-size:17px}.history-highlight small{font-size:9px;color:var(--muted)}
+@media(min-width:700px){main{padding:22px 20px 44px}.metrics{grid-template-columns:repeat(4,1fr)}.chart-wrap{height:440px}.quick-decision{padding:17px}.decision-state{font-size:32px}}
+@media(max-width:560px){main{padding:10px 10px 28px}.top{padding:10px 12px;margin-bottom:12px}.top h1{font-size:17px}.controls{grid-template-columns:1fr 1fr}.controls .symbol{grid-column:1/-1;grid-row:1}.controls .tf{grid-column:1;grid-row:2}.controls .analyze{grid-column:2;grid-row:2;min-height:50px;margin-top:18px;padding:0 8px;font-size:13px}.riskgrid{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr 1fr}.panel{padding:10px;margin-top:10px}.chart-wrap{height:300px}.decision-state{font-size:24px}.decision-score{min-width:70px}.decision-score b{font-size:19px}.tf-strip{gap:4px}.tf-chip{padding:7px 2px}.plan-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.plan-cell{padding:7px 4px}.plan-cell b{font-size:10px}.history-highlight b{font-size:15px}}
+
+
+/* Redesigned mobile-first connection and analysis controls */
+.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.control-stack{display:grid;grid-template-columns:minmax(0,1fr)!important;gap:17px;padding:18px;border:1px solid #263e66;border-radius:22px;background:linear-gradient(145deg,#101d34 0%,#0b1425 62%,#151333 100%);box-shadow:0 14px 35px #0005}
+.control-stack .field label{font-size:14px;font-weight:700;color:#aebed7;margin-bottom:9px}
+.symbol-shell{position:relative}.symbol-shell .input{height:58px;padding-inline-start:58px;font-size:19px;font-weight:750;letter-spacing:.4px;border-radius:15px;background:#091426;border-color:#2d456b;direction:ltr;text-align:left}
+.symbol-mark{position:absolute;z-index:1;left:15px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#f0a91d;color:#fff;font-size:20px;font-weight:900;box-shadow:0 0 18px #f0a91d55}
+.choice-row{display:grid;gap:8px}.timeframe-choices{grid-template-columns:repeat(6,minmax(0,1fr))}.choice-row button{min-width:0;min-height:48px;padding:0 7px;border-radius:13px;background:#0a1528;border:1px solid #293f67;color:#c6d3e8;font-size:15px;font-weight:750;transition:.15s}
+.choice-row button.active{color:#fff;border:1px solid #17bfff;background:linear-gradient(135deg,#063d83,#0752ad);box-shadow:0 0 0 1px #16baff55,0 0 17px #008cff55}
+.exchange-choices{grid-template-columns:1fr 1fr}.exchange-choices button{display:grid;grid-template-columns:34px 1fr;grid-template-rows:1fr 1fr;align-items:center;justify-items:start;column-gap:8px;min-height:66px;padding:8px 13px;text-align:left;font-size:16px}.exchange-choices button small{grid-column:2;color:#91a4c1;font-size:10px;font-weight:500}.exchange-choices button.active[data-exchange="BINANCE"]{border-color:#f3c84b;background:linear-gradient(110deg,#392a08,#171b27);box-shadow:0 0 15px #e6b72c22}.exchange-choices button.active[data-exchange="NOBITEX"]{border-color:#9876ff;background:linear-gradient(110deg,#25174a,#111b31);box-shadow:0 0 15px #9876ff22}.exchange-icon{grid-row:1/3;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:23px}.binance-icon{color:#f3c84b;background:#f3c84b1c}.nobitex-icon{color:#a58aff;background:#9876ff20}
+.primary-analyze{width:100%;min-height:68px;margin-top:1px;border-radius:17px;background:linear-gradient(105deg,#f3bd29,#ffdb62);color:#1a1b20;display:grid;grid-template-columns:36px 1fr;grid-template-rows:1fr 1fr;align-items:center;justify-items:center;column-gap:8px;padding:9px 18px;font-size:19px;box-shadow:0 8px 25px #dcae2940,inset 0 1px #fff8}.primary-analyze .play-mark{grid-row:1/3;font-size:23px}.primary-analyze small{font-size:11px;font-weight:650;opacity:.75}.primary-analyze:disabled{filter:saturate(.6)}
+#connectionSettings,#advancedSettings{margin:10px 0;border-radius:17px;padding-inline:14px;background:linear-gradient(110deg,#0e1a2d,#10152b);border-color:#263d61}#connectionSettings summary,#advancedSettings summary{padding:16px 3px;font-size:13px}
+#quickSymbols{justify-content:center;margin:13px 0 10px}#liveControl{padding:10px 12px;border-radius:13px;background:#0c1728;border:1px solid #1e3352;line-height:1.7}
+@media(min-width:700px){.control-stack{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px}.control-stack .symbol,.control-stack .exchange-field,.control-stack .primary-analyze{grid-column:1/-1}.timeframe-choices button{min-height:52px}.primary-analyze{max-width:100%}}
+@media(max-width:560px){.control-stack{padding:14px;gap:14px;border-radius:18px}.symbol-shell .input{height:56px}.choice-row button{min-height:46px;font-size:14px}.exchange-choices button{min-height:62px;font-size:15px}.primary-analyze{min-height:64px;font-size:17px}}
+
+
+/* Approved mobile reference layout — one compact, aligned control card */
+main{display:flex!important;flex-direction:column!important;gap:9px!important;max-width:980px!important;margin:0 auto!important;padding:9px 12px 28px!important}
+.top{order:0!important;display:flex!important;align-items:center!important;min-height:50px!important;margin:0!important;padding:8px 12px!important;border:1px solid #24527b!important;border-radius:16px!important;background:linear-gradient(110deg,#0d1b30,#10172b)!important}
+.top h1{font-size:17px!important;white-space:nowrap!important}.status{font-size:11px!important;white-space:nowrap!important}
+.controls{order:1!important;direction:ltr!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-areas:"tf tf symbol symbol" "exlabel exlabel exlabel exlabel" "analyze analyze nobitex binance"!important;gap:9px!important;padding:13px!important;margin:0!important;border:1px solid #29486e!important;border-radius:19px!important;background:linear-gradient(145deg,#101d32,#0a1424)!important}
+.controls .symbol{grid-area:symbol!important;min-width:0!important;direction:rtl!important}.controls .tf{grid-area:tf!important;min-width:0!important;direction:rtl!important;align-self:start!important}
+.controls .field label{font-size:12px!important;font-weight:700!important;margin:0 0 6px!important;color:#aebed7!important}
+.symbol-shell .input{height:54px!important;padding-inline-start:54px!important;font-size:19px!important;font-weight:800!important;border-radius:14px!important;direction:ltr!important;text-align:left!important}
+.symbol-mark{width:31px!important;height:31px!important}
+.timeframe-choices{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:4px!important;direction:ltr!important}
+.timeframe-choices button{min-width:0!important;height:43px!important;min-height:43px!important;padding:0 2px!important;font-size:12px!important;border-radius:11px!important}
+.timeframe-choices button[data-interval="1d"]{grid-column:1!important}
+.controls .exchange-field{display:contents!important}.controls .exchange-field>label{grid-area:exlabel!important;text-align:right!important;direction:rtl!important;margin:0!important;padding:1px 0 0!important}
+.controls .exchange-choices{display:contents!important}
+.controls .exchange-choices button{min-width:0!important;height:54px!important;min-height:54px!important;padding:5px 8px!important;display:flex!important;justify-content:center!important;align-items:center!important;gap:7px!important;border-radius:13px!important;font-size:13px!important;white-space:nowrap!important}
+.controls .exchange-choices button[data-exchange="NOBITEX"]{grid-area:nobitex!important}.controls .exchange-choices button[data-exchange="BINANCE"]{grid-area:binance!important}
+.controls .exchange-choices button small{display:none!important}.exchange-icon{width:25px!important;height:25px!important;font-size:17px!important}
+.controls .analyze{grid-area:analyze!important;min-width:0!important;width:100%!important;height:54px!important;min-height:54px!important;margin:0!important;padding:4px 7px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;border-radius:13px!important;font-size:14px!important;white-space:nowrap!important;direction:rtl!important}
+.controls .analyze .play-mark{font-size:16px!important}.controls .analyze small{display:none!important}
+#market{order:2!important;margin:0!important;padding:13px!important;border:1px solid #24527b!important;border-radius:19px!important;background:linear-gradient(145deg,#101d32,#0b1629)!important}
+#market .price-top{align-items:center!important;gap:8px!important}#market .price-top h2{font-size:16px!important;font-weight:800!important}#market .price-block .price{font-size:clamp(27px,7vw,35px)!important;font-weight:900!important;color:#ffd34e!important}
+.market-candle-clock{display:flex!important;align-items:center!important;gap:7px!important;margin-top:5px!important;font-size:11px!important;color:#9aacc7!important}.market-candle-clock b{font-size:14px!important;color:#ffd34e!important;font-variant-numeric:tabular-nums!important}
+#connectionSettings{order:3!important}#quickSymbols{order:4!important}#liveControl{order:5!important}#advancedSettings{order:6!important}#dataNoteFold{order:7!important}
+#engine{order:8!important;margin-top:0!important;border-radius:19px!important}#chartPanel{order:9!important;margin-top:0!important;border-radius:19px!important}#analysis{order:10!important;margin-top:0!important;border-radius:19px!important}
+.settings-fold{margin:0!important;border-radius:15px!important}.settings-fold summary{padding:14px 12px!important;font-size:13px!important}
+#quickSymbols{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:6px!important;margin:0!important}#quickSymbols button{min-width:0!important;min-height:42px!important;padding:0 3px!important;font-size:12px!important}
+#liveControl{margin:0!important;padding:11px 12px!important;border:1px solid #203653!important;border-radius:14px!important;background:#0d1728!important;font-size:12px!important}
+#chartPanel{padding:11px!important}.chart-tools{gap:5px!important;margin:4px 0 8px!important}.chart-tools button{min-height:42px!important;min-width:94px!important;font-size:12px!important;touch-action:manipulation;position:relative;z-index:3}.chart-wrap{height:clamp(330px,100vw,440px)!important;min-height:330px!important;border:1px solid #203e62!important;border-radius:15px!important;background:#050e1b!important}
+.signal-audit,.quick-decision{border-radius:15px!important}
+@media(min-width:700px){main{padding:18px 20px 38px!important}.controls{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr)!important;max-width:100%!important}.chart-wrap{height:480px!important}}
+@media(max-width:380px){main{padding:7px 8px 22px!important}.controls{padding:10px!important;gap:7px!important}.timeframe-choices button{font-size:10px!important;height:39px!important;min-height:39px!important}.controls .analyze{font-size:12px!important}.controls .exchange-choices button{font-size:11px!important}}
+
+
+/* Reference audit pass 01 — calibrated against the supplied Android viewport (921×1523 px, DPR≈2). */
+main{padding:7.5px 9px 28px!important;gap:10px!important}
+.top{min-height:55px!important}
+.top h1{font-size:18px!important}
+#dataSource{margin-top:27px!important;margin-bottom:6.5px!important}
+.controls{gap:11.25px!important}
+.symbol-shell .input{height:60px!important;font-size:20px!important}
+.controls .exchange-choices button,.controls .analyze{height:60px!important;min-height:60px!important}
+.settings-fold summary{padding:18.5px 12px!important}
+#quickSymbols button{min-height:46.5px!important}
+#liveControl{padding:12.75px 12px!important}
+/* HRS visual concept implementation — preserves all existing controls and analysis logic */
+:root{--bg:#060c18;--panel:#0c1729;--border:#1d4772;--text:#eaf1ff;--muted:#9aabc4;--gold:#ffc52e;--green:#08c987;--red:#ff5368;--blue:#13bfff;--violet:#9d7bff}
+body{background:radial-gradient(ellipse at 50% 0%,#142a50 0%,#080f1e 42%,#060b15 100%)!important;color:var(--text)}
+main{max-width:860px!important;padding:12px 12px 34px!important;gap:10px!important}
+.top{min-height:62px!important;padding:10px 15px!important;border:1px solid #1c5684!important;border-radius:22px!important;background:linear-gradient(105deg,#0b192d,#0a1427 58%,#12152e)!important;box-shadow:0 10px 28px #0005!important;margin:0 0 4px!important}
+.top h1{font-size:clamp(17px,4.3vw,23px)!important;font-weight:850!important}.top h1:before{content:'HRS  /  '!important;color:var(--gold)!important}.status{font-size:12px!important}.dot{width:9px!important;height:9px!important}
+.controls{border:1px solid #1e5684!important;border-radius:24px!important;background:linear-gradient(145deg,#0d1d34 0%,#0a1629 65%,#11172e 100%)!important;box-shadow:0 12px 30px #0005!important;padding:17px!important;gap:12px!important}
+.controls .field label{font-size:14px!important;color:#b8c8e0!important;font-weight:750!important;margin-bottom:8px!important}
+.symbol-shell .input{height:64px!important;border-radius:17px!important;background:#081426!important;border:1px solid #27466d!important;font-size:20px!important;color:#f3f6ff!important}
+.symbol-mark{width:37px!important;height:37px!important;font-size:23px!important}
+.timeframe-choices{gap:6px!important}.timeframe-choices button{height:48px!important;min-height:48px!important;border-radius:14px!important;font-size:14px!important;background:#09162a!important;border-color:#29466d!important}.timeframe-choices button.active{background:linear-gradient(145deg,#064d9b,#0864c6)!important;border-color:#18c4ff!important;box-shadow:0 0 0 1px #16baff55,0 0 20px #008cff50!important}
+.controls .exchange-choices button,.controls .analyze{height:62px!important;min-height:62px!important;border-radius:16px!important;font-size:14px!important}.controls .exchange-choices button{background:#0a1629!important;border:1px solid #2b456b!important;color:#e2eaff!important}.controls .exchange-choices button.active[data-exchange="BINANCE"]{border-color:#f5c849!important;background:linear-gradient(115deg,#332909,#111b2c)!important;box-shadow:0 0 16px #e6b72c24!important}.controls .exchange-choices button.active[data-exchange="NOBITEX"]{border-color:#9a7bff!important;background:linear-gradient(115deg,#251849,#101a2d)!important}.exchange-icon{font-size:20px!important}
+.controls .analyze{background:linear-gradient(105deg,#f2bb24,#ffda5d)!important;color:#17191f!important;box-shadow:0 8px 22px #e2b42b35,inset 0 1px #fff9!important;font-size:16px!important;font-weight:850!important}
+.settings-fold{border:1px solid #244b76!important;border-radius:19px!important;background:linear-gradient(110deg,#0d1a2d,#11162b)!important;margin:0!important;padding:0 14px!important;box-shadow:0 8px 20px #0002!important}.settings-fold summary{padding:17px 3px!important;font-size:14px!important;color:#c1cde2!important}.settings-fold summary:after{font-size:21px!important;color:var(--gold)!important}
+#quickSymbols{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:7px!important;margin:0!important}#quickSymbols button{min-width:0!important;min-height:49px!important;border-radius:15px!important;background:#0c192b!important;border:1px solid #253f63!important;color:#aebdd3!important;font-size:14px!important;font-weight:700!important;padding:0 4px!important}#quickSymbols button.active{border-color:#f0c343!important;color:#ffd04d!important;background:#151c2a!important}
+#liveControl{display:flex!important;justify-content:space-between!important;flex-direction:row-reverse!important;align-items:center!important;min-height:64px!important;margin:0!important;padding:12px 16px!important;border:1px solid #24456d!important;border-radius:18px!important;background:#0c1729!important;font-size:14px!important;color:#b8c6dc!important}#liveControl input{width:21px!important;height:21px!important;accent-color:var(--gold)!important}
+#market{padding:16px!important;border:1px solid #1c5481!important;border-radius:22px!important;background:linear-gradient(110deg,#0c1a30,#0b1528 60%,#101a30)!important;box-shadow:0 12px 26px #0004!important}#market .price-top{display:grid!important;grid-template-columns:1fr 1fr!important;align-items:center!important;gap:10px!important}#market .price-block{display:grid!important;grid-template-columns:1fr auto!important;grid-template-areas:'price clock' 'change clock'!important;align-items:center!important;column-gap:10px!important}#market .price-block .price{grid-area:price!important;text-align:left!important;font-size:clamp(26px,7vw,36px)!important;color:#f1f5ff!important;font-weight:900!important}#market .price-block #pricechange{grid-area:change!important}.market-candle-clock{grid-area:clock!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;border-left:1px solid #49617f!important;padding-left:12px!important;margin:0!important;font-size:12px!important}.market-candle-clock b{font-size:22px!important;color:var(--gold)!important}#market .price-top h2{font-size:16px!important}
+#engine{padding:15px!important;border:1px solid #1d5480!important;border-radius:22px!important;background:linear-gradient(150deg,#0d1c32,#0a1425 75%,#11182e)!important}#engine .panelhead h2{font-size:17px!important}.quick-decision{border:1px solid #27466d!important;border-radius:19px!important;background:linear-gradient(145deg,#10223b,#0b1629)!important;padding:15px!important}.decision-state{font-size:26px!important}.decision-score{border-color:#31577e!important;background:#0b192c!important}.decision-path{background:#142a46!important;border:1px solid #203e60!important}.tf-chip,.plan-cell,.history-highlight>div,.metric{background:#0a1729!important;border-color:#1f3a5c!important}.tf-chip{border-radius:13px!important}.plan-cell{border-radius:12px!important}.signal-audit{background:#0a1729!important;border-color:#244568!important;border-radius:18px!important}
+#chartPanel{padding:13px!important;border:1px solid #1d5480!important;border-radius:22px!important;background:linear-gradient(150deg,#0c1a30,#081322)!important}#chartPanel .panelhead h2{font-size:17px!important}.chart-wrap{height:clamp(300px,95vw,420px)!important;border:1px solid #1e3d60!important;border-radius:16px!important;background:#050e1b!important}.chart-tools button{border-radius:10px!important;background:#0d1a2d!important;border-color:#294768!important}
+#analysis{border:1px solid #1d5480!important;border-radius:20px!important;background:linear-gradient(145deg,#0d1c32,#0a1425)!important}
+#dataSource{font-size:11px!important;line-height:1.8!important;margin:10px 2px 0!important;color:#8192ac!important}
+@media(max-width:380px){main{padding:8px 8px 24px!important}.controls{padding:12px!important;gap:9px!important}.controls .exchange-choices button,.controls .analyze{height:55px!important;min-height:55px!important;font-size:12px!important}.timeframe-choices button{height:42px!important;min-height:42px!important;font-size:11px!important}.top{min-height:55px!important}.top h1{font-size:16px!important}}
+/* Keep all six supported timeframes visible in one compact mobile row */
+.timeframe-choices{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+.timeframe-choices button[data-interval="1d"]{grid-column:auto!important}
+@media(max-width:380px){.timeframe-choices button{font-size:10px!important;padding:0 1px!important}}
+
+
+.setup-history-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.setup-history-card{min-width:0;padding:12px 9px;border:1px solid #29496e;border-radius:13px;background:#0b192c;text-align:center}
+.setup-history-card .setup-name{font-size:12px;font-weight:750;line-height:1.5;color:#cbd8ec}
+.setup-history-card .setup-rate{display:block;margin-top:5px;font-size:23px;font-weight:850;color:#f4c84e;direction:ltr}
+.setup-history-card .setup-samples{margin-top:2px;font-size:10px;color:#94a8c4}
+.setup-history-card .setup-rate.good{color:#19c995}.setup-history-card .setup-rate.low{color:#f4c84e}
+
+
+/* Mobile-first six-page layout. Signal calculations and filters are intentionally untouched. */
+main.app-shell{display:block!important;max-width:900px;margin:0 auto;padding:12px 12px 96px!important}
+.app-page{display:none!important;min-width:0}.app-page.active{display:block!important}
+.mobile-nav{position:fixed!important;z-index:99999!important;top:auto!important;bottom:0!important;left:0!important;right:0!important;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;padding:8px max(8px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-right));background:rgba(5,12,25,.96);border-top:1px solid #294568;backdrop-filter:blur(16px);transform:none!important;will-change:transform}
+.nav-item{min-width:0;min-height:55px;padding:5px 2px;border-radius:13px;background:#0b192d;border:1px solid #223d60;color:#9eb1cc;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.nav-item span{font-size:20px;line-height:1.1}.nav-item small{font-size:10px;white-space:nowrap}.nav-item.active{background:linear-gradient(145deg,#064e9e,#0a2a55);border-color:#1da9f5;color:#fff;box-shadow:0 0 16px #087ce755}
+#page-dashboard .controls{margin-top:8px}#page-dashboard #quickSymbols{margin-top:12px!important}
+#page-chart #chartPanel,#page-structure #analysis{display:block!important;margin-top:8px}
+#page-details .detail-panel{margin-top:8px}
+#page-settings{display:none!important;gap:12px}#page-settings.active{display:grid!important}
+#page-settings .settings-fold{margin:0!important}
+#page-dashboard #engine{margin-top:12px}
+@media(min-width:700px){main.app-shell{padding:18px 20px 100px!important}.mobile-nav{left:50%;right:auto;transform:translateX(-50%);width:min(900px,100%);border:1px solid #294568;border-bottom:0;border-radius:18px 18px 0 0}}
+
+
+/* Approved mobile page hierarchy */
+#page-dashboard{display:flex;flex-direction:column;gap:9px}
+#page-dashboard #engine{order:0;margin:0!important}
+#page-dashboard #market{order:1;margin:0!important;padding:9px 12px!important}
+#page-dashboard .dashboard-controls{order:2;margin:0!important}
+#page-dashboard .dashboard-controls summary{font-size:12px;padding:12px 4px}
+#page-dashboard .controls{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:8px}
+#page-dashboard .controls .symbol{grid-column:1/-1}
+#page-dashboard .controls .analyze{grid-column:1/-1}
+#page-dashboard .quick{margin:10px 0 4px!important}
+#page-dashboard #liveControl{margin:8px 0 0!important}
+#market .price-block .price{font-size:clamp(18px,4.8vw,25px)!important;font-weight:800!important}
+#market .market-candle-clock b{font-size:17px!important}
+.signal-list-heading{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:14px 2px 8px;font-size:13px}
+.signal-list-heading span{font-size:10px;color:var(--muted)}
+#routeMetrics,#performanceMetrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#routeMetrics .metric,#performanceMetrics .metric{min-width:0;padding:10px;border:1px solid #254568;border-radius:13px}
+#routeMetrics .metric small,#performanceMetrics .metric small{font-size:11px;line-height:1.55}
+#routeMetrics .metric strong,#performanceMetrics .metric strong{display:block;font-size:15px;margin:4px 0}
+.setup-history-inline{display:block;font-size:10px;line-height:1.7;color:var(--muted)}
+#page-performance .result{margin:0 0 12px}
+.mobile-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:3px!important;padding-left:5px!important;padding-right:5px!important}
+.nav-item{min-height:52px!important;padding:4px 1px!important}
+.nav-item span{font-size:18px!important}.nav-item small{font-size:9px!important}
+@media(max-width:380px){#routeMetrics,#performanceMetrics{grid-template-columns:1fr 1fr}.nav-item small{font-size:8px!important}}
+
+
+/* Refined mobile navigation, page order and compact live-price placement */
+.mobile-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:4px!important;padding:8px 7px calc(8px + env(safe-area-inset-bottom))!important}
+.nav-item{min-height:56px!important;border-radius:14px!important;white-space:normal!important}
+.nav-item small{font-size:10px!important;line-height:1.2!important}
+#page-settings{display:none!important;grid-template-columns:1fr!important;gap:12px!important}
+#page-settings.active{display:flex!important;flex-direction:column!important}
+#page-settings>.settings-fold{width:100%!important;box-sizing:border-box!important}
+.dashboard-price-head{align-items:center!important;margin-bottom:10px!important}
+.dashboard-price-head>div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.dashboard-live-price{font-size:clamp(20px,5.6vw,29px);font-weight:900;direction:ltr;text-align:left;color:#f3f6ff;line-height:1.2}
+#page-chart #market{display:block!important;margin:0 0 10px!important}
+#page-chart #chartPanel{display:block!important;margin-top:0!important}
+#page-dashboard #market{display:none!important}
+@media(max-width:380px){.nav-item small{font-size:9px!important}.nav-item{min-height:53px!important}}
+
+
+/* Final mobile layout correction based on the user's phone screenshot */
+.mobile-nav{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-rows:54px;gap:7px!important;padding:9px 10px calc(9px + env(safe-area-inset-bottom))!important;max-height:none!important;border-radius:18px 18px 0 0!important}
+.nav-item{width:100%!important;min-width:0!important;min-height:50px!important;height:54px!important;padding:5px 3px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:7px!important;border-radius:12px!important;white-space:nowrap!important}
+.nav-item span{font-size:19px!important;line-height:1!important}.nav-item small{font-size:11px!important;line-height:1.2!important;white-space:nowrap!important}
+main.app-shell{padding-bottom:155px!important}
+#page-dashboard{display:flex;flex-direction:column;gap:9px}
+#page-dashboard .dashboard-marketline{display:block!important;margin:0!important;padding:10px 13px!important}
+.dashboard-price-head{display:flex!important;justify-content:space-between!important;align-items:center!important;gap:12px!important;margin:0!important}
+.dashboard-price-head>div{display:flex!important;flex-direction:column!important;gap:3px!important;min-width:0!important}
+.dashboard-live-price{display:block!important;font-size:clamp(22px,6vw,30px)!important;font-weight:850!important;direction:ltr!important;text-align:left!important;color:#f2f6ff!important;line-height:1.2!important}
+#page-dashboard #engine{margin:0!important}
+#page-dashboard #market{display:none!important}
+#page-chart #market{display:block!important;margin:0 0 9px!important}
+#page-chart #chartPanel{display:block!important;margin:0!important}
+#page-performance{display:block}
+#page-performance .panel{margin-top:0!important}
+#page-settings.active{display:flex!important;flex-direction:column!important;gap:10px!important}
+#page-settings>.settings-fold{display:block!important;width:100%!important;margin:0!important;float:none!important;clear:both!important}
+@media(min-width:700px){.mobile-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important;grid-auto-rows:58px;width:min(900px,100%)!important}.nav-item{flex-direction:column!important;gap:3px!important;height:58px!important}main.app-shell{padding-bottom:105px!important}}
+
+
+/* Compact dashboard controls — visual replacement only; all original IDs and handlers stay intact */
+#page-dashboard .dashboard-controls{display:block!important;order:2!important;margin:0!important;padding:10px!important;border:1px solid #24527b!important;border-radius:19px!important;background:linear-gradient(145deg,#0d1c31,#0a1424 70%,#11172b)!important;box-shadow:0 8px 22px #0003!important}
+#page-dashboard .dashboard-controls>summary{display:none!important}
+#page-dashboard .dashboard-controls .controls{direction:ltr!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-areas:"tf tf symbol symbol" "exlabel exlabel exlabel exlabel" "analyze analyze nobitex binance"!important;gap:7px!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+#page-dashboard .dashboard-controls .field label{font-size:11px!important;font-weight:700!important;margin:0 0 5px!important;color:#aebed7!important}
+#page-dashboard .dashboard-controls .symbol{grid-area:symbol!important;min-width:0!important;direction:rtl!important}
+#page-dashboard .dashboard-controls .tf{grid-area:tf!important;min-width:0!important;direction:rtl!important}
+#page-dashboard .dashboard-controls .symbol-shell .input{height:43px!important;padding-inline-start:40px!important;font-size:15px!important;font-weight:800!important;border-radius:12px!important;border:1px solid #29496e!important;background:#081426!important}
+#page-dashboard .dashboard-controls .symbol-mark{width:27px!important;height:27px!important;font-size:17px!important}
+#page-dashboard .dashboard-controls .timeframe-choices{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:3px!important;direction:ltr!important}
+#page-dashboard .dashboard-controls .timeframe-choices button{height:34px!important;min-height:34px!important;padding:0 1px!important;border-radius:9px!important;font-size:10px!important;background:#091629!important;border:1px solid #294365!important}
+#page-dashboard .dashboard-controls .timeframe-choices button.active{background:linear-gradient(145deg,#07519d,#0873c8)!important;border-color:#20c2ff!important;box-shadow:0 0 10px #008cff45!important;color:#fff!important}
+#page-dashboard .dashboard-controls .exchange-field{display:contents!important}
+#page-dashboard .dashboard-controls .exchange-field>label{grid-area:exlabel!important;text-align:right!important;margin:1px 0 0!important;padding:0!important}
+#page-dashboard .dashboard-controls .exchange-choices{display:contents!important}
+#page-dashboard .dashboard-controls .exchange-choices button{height:42px!important;min-height:42px!important;min-width:0!important;padding:4px!important;display:flex!important;justify-content:center!important;align-items:center!important;gap:5px!important;border-radius:11px!important;font-size:11px!important;white-space:nowrap!important;background:#0a1629!important;border:1px solid #2b456b!important;color:#e2eaff!important}
+#page-dashboard .dashboard-controls .exchange-choices button[data-exchange="NOBITEX"]{grid-area:nobitex!important}
+#page-dashboard .dashboard-controls .exchange-choices button[data-exchange="BINANCE"]{grid-area:binance!important}
+#page-dashboard .dashboard-controls .exchange-choices button small{display:none!important}
+#page-dashboard .dashboard-controls .exchange-icon{width:22px!important;height:22px!important;font-size:15px!important;border-radius:8px!important}
+#page-dashboard .dashboard-controls .exchange-choices button.active[data-exchange="BINANCE"]{border-color:#f5c849!important;background:linear-gradient(115deg,#332909,#111b2c)!important;box-shadow:0 0 10px #e6b72c20!important}
+#page-dashboard .dashboard-controls .exchange-choices button.active[data-exchange="NOBITEX"]{border-color:#9a7bff!important;background:linear-gradient(115deg,#251849,#101a2d)!important}
+#page-dashboard .dashboard-controls .analyze{grid-area:analyze!important;width:100%!important;height:42px!important;min-height:42px!important;margin:0!important;padding:3px 5px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;border-radius:11px!important;font-size:12px!important;white-space:nowrap!important;background:linear-gradient(105deg,#f2bb24,#ffda5d)!important;color:#17191f!important;box-shadow:0 5px 12px #e2b42b25!important}
+#page-dashboard .dashboard-controls .analyze small{display:none!important}
+#page-dashboard .dashboard-controls #quickSymbols{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:5px!important;margin:8px 0 0!important;direction:ltr!important}
+#page-dashboard .dashboard-controls #quickSymbols button{min-width:0!important;min-height:35px!important;padding:0 2px!important;border-radius:10px!important;font-size:11px!important;background:#0c192b!important;border:1px solid #253f63!important;color:#aebdd3!important}
+#page-dashboard .dashboard-controls #quickSymbols button.active{border-color:#f0c343!important;color:#ffd04d!important;background:#151c2a!important}
+#page-dashboard .dashboard-controls #liveControl{display:flex!important;justify-content:space-between!important;align-items:center!important;flex-direction:row-reverse!important;min-height:39px!important;margin:7px 0 0!important;padding:6px 9px!important;border:1px solid #24456d!important;border-radius:10px!important;background:#0c1729!important;font-size:11px!important;color:#b8c6dc!important}
+#page-dashboard .dashboard-controls #liveControl input{width:17px!important;height:17px!important;accent-color:var(--gold)!important}
+@media(min-width:700px){#page-dashboard .dashboard-controls{padding:13px!important}#page-dashboard .dashboard-controls .controls{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+@media(max-width:360px){#page-dashboard .dashboard-controls{padding:8px!important}#page-dashboard .dashboard-controls .timeframe-choices button{font-size:9px!important}#page-dashboard .dashboard-controls .exchange-choices button{font-size:10px!important}}
+
+
+/* Dashboard: compact live price strip; chart keeps its own full price panel */
+#page-dashboard .dashboard-marketline{padding:10px 13px!important;margin:0 0 2px!important;border-radius:15px!important;background:linear-gradient(115deg,#101e32,#0b1628 68%,#101b30)!important;border:1px solid #29476d!important;box-shadow:0 5px 16px #0003!important}
+.dash-price-top,.dash-price-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+.dash-price-top{margin-bottom:5px}
+.dash-pair{font-size:12px;color:#aebed5;font-weight:700;direction:ltr;unicode-bidi:isolate}
+.dash-candle{display:flex;align-items:center;gap:6px;padding:3px 8px;border-radius:9px;background:#142944;border:1px solid #29466a;white-space:nowrap}
+.dash-candle small{font-size:10px;color:#9aacc6}
+.dash-candle b{font-size:12px;color:#f4c84e;font-variant-numeric:tabular-nums;direction:ltr}
+.dashboard-live-price{font-size:clamp(22px,6vw,29px)!important;font-weight:900!important;direction:ltr!important;text-align:left!important;color:#f2f6ff!important;line-height:1.15!important;white-space:nowrap}
+.dash-change{font-size:10px;color:#9aacc6;text-align:right;line-height:1.5}
+.dash-change.green{color:#20df91}.dash-change.red{color:#ff6576}
+
+/* Structured, numbered technical report for the mobile Structure page */
+.structure-report{display:grid;gap:10px}.structure-group{padding:12px;border:1px solid #203a5b;border-radius:14px;background:linear-gradient(145deg,#101f35,#0b1729)}.structure-section-title{display:flex;align-items:center;gap:9px;color:#e6efff;font-size:14px;margin-bottom:9px}.structure-number{display:inline-flex;align-items:center;justify-content:center;flex:0 0 25px;width:25px;height:25px;border-radius:8px;background:#153b65;border:1px solid #28639b;color:#65caff;font-weight:800;font-size:12px}.structure-line{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:7px 2px;border-top:1px solid #1c304a;font-size:13px;line-height:1.7}.structure-line span{color:#9eb0ca;flex:0 0 auto}.structure-line b,.structure-line bdi{color:#e5edfb;text-align:left;direction:ltr;unicode-bidi:isolate;overflow-wrap:anywhere}.structure-foot{font-size:11px;line-height:1.8;color:#8498b6;margin:7px 0 0}.structure-group .structure-line b{max-width:68%}
+@media(max-width:420px){.structure-group{padding:10px}.structure-line{font-size:12px;gap:8px}.structure-group .structure-line b{max-width:64%}}
+
+/* Final mobile navigation override: keep all six pages in one horizontal row. */
+.mobile-nav{
+  display:grid!important;
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  grid-auto-flow:column!important;
+  grid-auto-rows:50px!important;
+  gap:3px!important;
+  overflow:hidden!important;
+  max-height:calc(58px + env(safe-area-inset-bottom))!important;
+  padding:5px 5px calc(5px + env(safe-area-inset-bottom))!important;
+}
+.mobile-nav .nav-item{
+  width:100%!important;min-width:0!important;height:48px!important;min-height:48px!important;
+  padding:3px 1px!important;display:flex!important;flex-direction:column!important;
+  align-items:center!important;justify-content:center!important;gap:1px!important;
+  white-space:nowrap!important;border-radius:10px!important;
+}
+.mobile-nav .nav-item span{font-size:16px!important;line-height:1!important}
+.mobile-nav .nav-item small{font-size:clamp(7px,2.15vw,10px)!important;line-height:1.15!important;white-space:nowrap!important;letter-spacing:-.25px!important}
+@media(min-width:700px){
+ .mobile-nav{grid-template-columns:repeat(6,minmax(0,1fr))!important;grid-auto-rows:54px!important;max-height:none!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important}
+ .mobile-nav .nav-item{height:52px!important;min-height:52px!important}
+ .mobile-nav .nav-item span{font-size:18px!important}
+ .mobile-nav .nav-item small{font-size:10px!important}
+}
+
+
+@supports(padding:max(0px)){body{padding-bottom:calc(82px + max(env(safe-area-inset-bottom),0px))}}
+.mobile-nav{position:fixed!important;inset:auto 0 0 0!important;z-index:99999!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}
+@media(min-width:700px){.mobile-nav{left:50%!important;right:auto!important;bottom:0!important;transform:translateX(-50%)!important;width:min(900px,100%)!important}}
+
+/* Stable bottom navigation across mobile browser toolbar collapse/expand */
+html, body { min-height:100%; }
+body { padding-bottom: calc(76px + env(safe-area-inset-bottom)) !important; }
+.mobile-nav {
+  position: fixed !important;
+  top: auto !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  z-index: 2147483000 !important;
+  transform: none !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: repeat(6,minmax(0,1fr)) !important;
+  grid-auto-flow: column !important;
+  height: auto !important;
+  max-height: calc(62px + env(safe-area-inset-bottom)) !important;
+  padding: 5px 5px calc(5px + env(safe-area-inset-bottom)) !important;
+  background: rgba(5,12,25,.98) !important;
+  isolation: isolate;
+}
+@media (min-width:700px) {
+  .mobile-nav { left:50% !important; right:auto !important; width:min(900px,100%) !important; transform:translateX(-50%) !important; }
+}
+
+/* Compact connection indicator: prevent header overflow on narrow phones */
+.top { min-width:0 !important; gap:8px !important; }
+.top h1 { flex:0 0 auto !important; }
+.status {
+  flex:0 1 auto !important;
+  min-width:0 !important;
+  max-width:48% !important;
+  font-size:clamp(9px,2.7vw,11px) !important;
+  line-height:1.2 !important;
+  gap:5px !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  direction:rtl !important;
+}
+.status #status { min-width:0 !important; overflow:hidden !important; text-overflow:ellipsis !important; }
+.status .dot { flex:0 0 8px !important; }
+
+.chart-latest-plan{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:9px;padding:9px;border:1px solid #294768;border-radius:12px;background:#0a1729}.chart-latest-plan b{grid-column:1/-1;font-size:12px;color:#dce8f7}.chart-latest-plan .lv{min-width:0;padding:7px 5px;border-radius:8px;background:#111f32;text-align:center}.chart-latest-plan small{display:block;font-size:10px;color:#9eafc4}.chart-latest-plan strong{display:block;font-size:11px;direction:ltr;overflow-wrap:anywhere}.chart-latest-plan .entry strong{color:#e8c66a}.chart-latest-plan .stop strong{color:#ff6475}.chart-latest-plan .tp1 strong{color:#25c58a}.chart-latest-plan .tp2 strong{color:#55b7e8}
+@media(max-width:420px){.chart-latest-plan{gap:4px;padding:7px}.chart-latest-plan .lv{padding:6px 2px}.chart-latest-plan strong{font-size:10px}}
+
+/* Mobile chart: fit the phone width; vertical page scroll + horizontal candle pan. */
+#page-chart{display:block!important;width:100%!important;max-width:100vw!important;min-width:0!important;overflow-x:hidden!important;overflow-y:visible!important;-webkit-overflow-scrolling:touch}
+#page-chart #chartPanel{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;margin:0!important;padding:10px!important;overflow:visible!important}
+#page-chart .chart-panel,#page-chart .panelhead,#page-chart .chart-tools,#page-chart .chart-latest-plan{width:100%!important;min-width:0!important;max-width:100%!important}
+#page-chart .chart-wrap{display:block!important;width:100%!important;min-width:0!important;height:clamp(280px,58vh,430px)!important;min-height:280px!important;max-height:68vh!important;overflow:hidden!important;touch-action:pan-y!important;border-radius:12px!important}
+#page-chart #chart{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;touch-action:none!important;cursor:grab}
+#page-chart #chart:active{cursor:grabbing}
+#page-chart .chart-resize{height:18px!important;touch-action:pan-y!important}
+#page-chart .chart-resize:after{width:58px;height:4px}
+#page-chart .chart-tools{gap:5px!important;flex-wrap:wrap!important}
+#page-chart .chart-tools button{min-width:0!important;flex:1 1 auto;min-height:40px!important;padding:0 8px!important;font-size:11px!important}
+@media(min-width:700px){#page-chart #chartPanel{width:100%!important;min-width:0!important}#page-chart .chart-wrap{height:clamp(420px,62vh,560px)!important;min-height:380px!important}}
+@media(max-width:380px){#page-chart #chartPanel{padding:8px!important}#page-chart .chart-wrap{height:300px!important;min-height:280px!important}#page-chart .chart-tools button{font-size:10px!important;padding:0 5px!important}}
+
+</style>
+
+<style id="hrs-strict-chart-page-scope">
+/* The chart and every chart-only control may render only inside the active Chart tab. */
+.app-page:not(.active) { display: none !important; }
+.app-page:not(#page-chart) #market,
+.app-page:not(#page-chart) #chartPanel,
+.app-page:not(#page-chart) #chartWrap,
+.app-page:not(#page-chart) #chart,
+.app-page:not(#page-chart) #chartResize,
+.app-page:not(#page-chart) #chartLatestPlan,
+.app-page:not(#page-chart) .chart-panel,
+.app-page:not(#page-chart) .chart-tools,
+.app-page:not(#page-chart) .chart-wrap,
+.app-page:not(#page-chart) .chart-resize,
+.app-page:not(#page-chart) .chart-latest-plan {
+  display: none !important;
+  visibility: hidden !important;
+}
+#page-chart:not(.active) #market,
+#page-chart:not(.active) #chartPanel,
+#page-chart:not(.active) #chartWrap,
+#page-chart:not(.active) #chart,
+#page-chart:not(.active) #chartResize,
+#page-chart:not(.active) #chartLatestPlan {
+  display: none !important;
+  visibility: hidden !important;
+}
+#page-chart.active #chartPanel:not([hidden]),
+#page-chart.active #market:not([hidden]) { display: block !important; visibility: visible !important; }
+</style>
+</head>
+<body>
+<main class="app-shell">
+ <header class="top"><h1>تحلیل SMC / ICT</h1><div class="status"><span id="dot" class="dot"></span><span id="status">آماده اتصال</span></div></header>
+
+ <div class="app-page active" id="page-dashboard" data-page-panel="dashboard">
+ <section class="panel dashboard-marketline" aria-label="قیمت زنده بازار">
+  <div class="dash-price-top">
+   <span id="dashPair" class="dash-pair">BTCUSDT · 5m</span>
+   <span class="dash-candle"><small>مانده کندل</small><b id="dashCountdown">—</b></span>
+  </div>
+  <div class="dash-price-bottom">
+   <b id="dashPrice" class="dashboard-live-price">—</b>
+   <span id="dashChange" class="dash-change">قیمت زنده · تغییر ۲۴ساعته —</span>
+  </div>
+ </section>
+ <section id="engine" class="panel" hidden>
+  <section id="quickDecision" class="quick-decision" aria-live="polite">
+   <div class="decision-main"><div><div id="decisionState" class="decision-state wait">در انتظار تحلیل</div><div id="decisionSub" class="decision-sub">با اجرای تحلیل، وضعیت آخرین کندل بسته‌شده نمایش داده می‌شود.</div></div><div class="decision-score"><b id="decisionScore">—</b><small>امتیاز موتور</small></div></div>
+   <div id="decisionPath" class="decision-path">مسیر صادرکننده: —</div>
+   <div class="tf-strip"><div class="tf-chip"><small>جهت 1H</small><b id="tf1h" class="flat">—</b></div><div class="tf-chip"><small>جهت 15m</small><b id="tf15" class="flat">—</b></div><div class="tf-chip"><small id="tfMainLabel">ساختار 5m</small><b id="tf5" class="flat">—</b></div><div class="tf-chip"><small id="tfFlowLabel">جریان 1m</small><b id="tf1" class="flat">—</b></div></div>
+   <div class="plan-grid"><div class="plan-cell entry"><small>ورود</small><b id="quickEntry">—</b></div><div class="plan-cell stop"><small>حدضرر</small><b id="quickStop">—</b></div><div class="plan-cell target"><small>TP1</small><b id="quickTp1">—</b></div><div class="plan-cell target"><small>TP2</small><b id="quickTp2">—</b></div></div>
+   <div id="decisionReason" class="decision-reason">دلیل تصمیم پس از تحلیل نمایش داده می‌شود.</div>
+  </section>
+
+ </section>
+ <details class="dashboard-controls settings-fold" open><summary>انتخاب نماد، تایم‌فریم، صرافی و اجرای تحلیل</summary>
+ <section class="controls control-stack">
+  <div class="field symbol"><label for="symbol">نماد بازار</label><div class="symbol-shell"><span class="symbol-mark">₿</span><input id="symbol" class="input" value="BTCUSDT" autocapitalize="characters" spellcheck="false" aria-label="نماد بازار"></div></div>
+  <div class="field tf"><label>تایم‌فریم</label><div class="choice-row timeframe-choices" role="group" aria-label="انتخاب تایم‌فریم">
+   <button type="button" data-interval="1m">1m</button><button type="button" data-interval="5m" class="active">5m</button><button type="button" data-interval="15m">15m</button><button type="button" data-interval="1h">1H</button><button type="button" data-interval="4h">4H</button><button type="button" data-interval="1d">1D</button>
+  </div><select id="interval" class="visually-hidden" aria-hidden="true" tabindex="-1"><option>1m</option><option selected>5m</option><option>15m</option><option>1h</option><option>4h</option><option>1d</option></select></div>
+  <div class="field exchange-field"><label>صرافی</label><div class="choice-row exchange-choices" role="group" aria-label="انتخاب صرافی">
+   <button type="button" data-exchange="BINANCE" class="active"><span class="exchange-icon binance-icon">◆</span><span>Binance</span><small>اصلی</small></button><button type="button" data-exchange="NOBITEX"><span class="exchange-icon nobitex-icon">▲</span><span>Nobitex</span><small>دوم</small></button>
+  </div><select id="exchange" class="visually-hidden" aria-hidden="true" tabindex="-1"><option value="BINANCE" selected>بایننس · اصلی</option><option value="NOBITEX">نوبیتکس · دوم</option></select></div>
+  <button class="analyze primary-analyze" id="analyze"><span class="play-mark">▶</span><span>تحلیل و دریافت داده</span><small>(همزمان)</small></button>
+ </section>
+ <div class="quick" id="quickSymbols">
+  <button data-symbol="BTCUSDT" class="active">BTC</button><button data-symbol="ETHUSDT">ETH</button><button data-symbol="SOLUSDT">SOL</button><button data-symbol="BNBUSDT">BNB</button><button data-symbol="XRPUSDT">XRP</button>
+ </div>
+ <label class="checkline" id="liveControl"><input type="checkbox" id="live">قیمت زنده و شمارش معکوس کندل</label>
+ </details>
+ </div>
+ <div class="app-page" id="page-chart" data-page-panel="chart">
+ <section id="market" class="panel price-panel" hidden>
+  <div class="price-top"><div><h2 id="pair">BTCUSDT · 5m</h2><div class="change" id="marketmeta">قیمت بازار</div></div><div class="price-block"><div class="price" id="lastprice">—</div><div class="change" id="pricechange">—</div><div class="market-candle-clock"><span>مانده کندل</span><b id="marketCountdown">—</b></div></div></div>
+ </section>
+ <section id="chartPanel" class="panel chart-panel" hidden>
+  <div class="panelhead"><h2>نمودار SMC / ICT</h2><span class="change">کندل · نواحی · ساختار · سیگنال</span></div>
+  <div class="chart-tools"><button type="button" id="zoomIn">＋ بزرگ‌نمایی</button><button type="button" id="zoomOut">− کوچک‌نمایی</button><button type="button" id="chartFit">نمایش همه</button><button type="button" id="priceZoomIn">＋ زوم عمودی</button><button type="button" id="priceZoomOut">− زوم عمودی</button><button type="button" id="chartReset">بازنشانی</button><span class="toolhint">کشیدن: حرکت چهارجهته · دو انگشت: زوم افقی و عمودی</span></div>
+  <div class="chart-wrap" id="chartWrap"><canvas id="chart" aria-label="نمودار کندل با علائم اندیکاتور"></canvas></div><div class="chart-resize" id="chartResize" title="برای تغییر ارتفاع نمودار بکشید"></div><div id="chartLatestPlan" class="chart-latest-plan" aria-live="polite"><b>پلن آخرین سیگنال</b><span>پس از تحلیل، ورود، حدضرر و اهداف اینجا نمایش داده می‌شوند.</span></div>
+ </section>
+ </div>
+ <div class="app-page" id="page-structure" data-page-panel="structure">
+ <section id="analysis" class="panel" hidden>
+  <div class="panelhead"><h2>خلاصه تحلیل تکنیکال</h2><span class="change" id="updated">—</span></div>
+  <div class="metrics">
+   <div class="metric"><small>جهت EMA 20 / 50</small><strong id="trend">—</strong></div>
+   <div class="metric"><small>RSI (14)</small><strong id="rsi">—</strong></div>
+   <div class="metric"><small>ATR (14)</small><strong id="atr">—</strong></div>
+   <div class="metric"><small>ساختار آخرین سوئینگ</small><strong id="swing">—</strong></div>
+  </div>
+  <div class="result" id="riskresult" style="margin-top:14px"></div>
+  <div class="result" id="analysistext" style="margin-top:10px"></div>
+ </section>
+ </div>
+ <div class="app-page" id="page-details" data-page-panel="details">
+ <section class="panel detail-panel"><div class="panelhead"><h2>جزئیات تصمیم و مدیریت معامله</h2><span class="change">بر اساس آخرین تحلیل</span></div><div class="result" id="tradePlan" style="margin-top:4px"></div><p class="change" id="engineCaveat" style="line-height:1.8;margin-top:12px">شبیه‌سازی محاسباتی منطق اندیکاتور بر داده عمومی صرافی انتخاب‌شده؛ سفارش‌گذاری انجام نمی‌شود. آمار TP1 فقط از معاملات بسته‌شده داخل تاریخچه بارگذاری‌شده محاسبه می‌شود و پیش‌بینی یا تضمین عملکرد آینده نیست.</p></section> </div>
+ <div class="app-page" id="page-performance" data-page-panel="performance">
+  <section class="panel"><div class="panelhead"><h2>آمار مستقل مسیرهای سیگنال</h2><span class="change">فقط معاملات بسته‌شده</span></div><p class="result">درصدها بر اساس برخورد TP1 در دفتر تاریخی همان مسیر محاسبه می‌شوند. مسیرهای فاقد نمونه با «—» نمایش داده می‌شوند.</p><div class="signal-list-heading"><b>تمام مسیرها، وضعیت و سابقه اختصاصی</b><span>TP1 معاملات بسته</span></div><div class="metrics" id="routeMetrics"><div class="audit-empty">پس از نخستین تحلیل، سابقه مسیرها اینجا نمایش داده می‌شود.</div></div></section>
+ </div>
+ <div class="app-page" id="page-settings" data-page-panel="settings">
+ <details class="settings-fold" id="connectionSettings"><summary>تنظیمات اتصال صرافی‌ها</summary><div class="field" style="margin-top:14px">
+  <label for="binanceWorkerUrl">Worker بایننس (اصلی)</label>
+  <input id="binanceWorkerUrl" class="input" type="url" inputmode="url" value="https://hrs-binance-proxy.sdaghat-tk.workers.dev" autocomplete="url" spellcheck="false">
+  <label for="workerUrl" style="margin-top:9px">Worker نوبیتکس (دوم)</label>
+  <input id="workerUrl" class="input" type="url" inputmode="url" value="https://hrs-nobitex-crypto.sdaghat-tk.workers.dev" autocomplete="url" spellcheck="false">
+ </div></details>
+ <details class="settings-fold" id="advancedSettings"><summary>تنظیمات پیشرفته تحلیل و مدیریت ریسک</summary>
+ <section class="grid2 riskgrid">
+  <div class="field"><label>سرمایه (USDT)</label><input id="capital" class="input" type="number" min="1" value="100"></div>
+  <div class="field"><label>ریسک هر معامله (%)</label><input id="risk" class="input" type="number" min="0.1" max="10" step=".1" value="1"></div>
+  <div class="field"><label>تعداد کندل تحلیل</label><select id="limit"><option value="5000">5000</option><option value="10000" selected>10000</option></select></div>
+  <div class="field"><label>تعداد کندل روی نمودار</label><select id="visible"><option>25</option><option>50</option><option>75</option><option>100</option><option>150</option><option>200</option><option>300</option><option>500</option><option>750</option><option>1000</option><option>1500</option><option>2000</option><option selected>3000</option><option>5000</option><option>7500</option><option>10000</option></select></div>
+  <div class="field"><label>پروفایل فیلتر سیگنال</label><select id="profile"><option value="ACTIVE">ACTIVE · فرصت بیشتر</option><option value="BALANCED" selected>BALANCED · متعادل</option><option value="STRICT">STRICT · سخت‌گیرانه</option></select></div>
+  <div class="field"><label>حساسیت ساختار (هم‌تراز Pine)</label><select id="sensitivity"><option value="LOW">LOW · کمتر</option><option value="MEDIUM" selected>MEDIUM · پیش‌فرض Pine</option><option value="HIGH">HIGH · بیشتر</option></select></div>
+  <div class="field"><label>طول سوئینگ (۰ = خودکار)</label><input id="swingOverride" class="input" type="number" min="0" max="250" step="1" value="0" inputmode="numeric"></div>
+ </section></details>
+ <details class="settings-fold data-fold" id="dataNoteFold"><summary>منابع داده و روش تحلیل</summary><p class="note" id="dataNote">بایننس منبع اصلی داده USDT و نوبیتکس منبع دوم است. داده تاریخی IRT با نرخ فعلی USDT/IRT تبدیل می‌شود و تقریبی است. تحلیل شامل ساختار بازار، نقدینگی، OB/Breaker، FVG/ViG، OTE، Premium/Discount، رنج و مسیرهای S1 تا S4 است. در تایم ۵ دقیقه داده ۱ دقیقه برای جریان حجم دریافت می‌شود؛ تصمیم نهایی فقط با کندل بسته‌شده است.</p></details>
+ </div>
+ <div class="footer" id="dataSource">منبع داده: Binance Public Market API · صرافی اصلی بایننس · نوبیتکس گزینه دوم · بدون API Key · فقط خواندن داده · بدون ثبت سفارش</div>
+</main>
+</main>
+ <nav class="mobile-nav" aria-label="ناوبری صفحات">
+  <button type="button" class="nav-item active" data-page="dashboard"><span>⌂</span><small>۱ · داشبورد</small></button>
+  <button type="button" class="nav-item" data-page="performance"><span>▤</span><small>۲ · آمار</small></button>
+  <button type="button" class="nav-item" data-page="chart"><span>▥</span><small>۳ · چارت</small></button>
+  <button type="button" class="nav-item" data-page="structure"><span>⌁</span><small>۴ · ساختار</small></button>
+  <button type="button" class="nav-item" data-page="details"><span>☷</span><small>۵ · جزئیات</small></button>
+  <button type="button" class="nav-item" data-page="settings"><span>⚙</span><small>۶ · تنظیمات</small></button>
+ </nav>
+<script>
+const $=id=>document.getElementById(id);let candles=[],lowerCandles=[],timer=null,priceTimer=null,clockTimer=null,analysisResult=null,lastTickerRate=0,lastTickerRateAt=0,lastLivePrice=null,chartHeight=340,chartOffset=0,chartPointer=null,chartDrag=null,liveCandle=null,chartPointers=new Map(),pinchStart=null,chartPriceScale=1,chartPriceShift=0;
+try{$('workerUrl').value=localStorage.getItem('hrs_nobitex_worker')||'https://hrs-nobitex-crypto.sdaghat-tk.workers.dev';$('binanceWorkerUrl').value=localStorage.getItem('hrs_binance_worker')||'https://hrs-binance-proxy.sdaghat-tk.workers.dev';$('exchange').value=localStorage.getItem('hrs_exchange')||'BINANCE'}catch(e){}
+function selectedExchange(){return $('exchange').value||'BINANCE'}
+function workerBase(exchange=selectedExchange()){const id=exchange==='BINANCE'?'binanceWorkerUrl':'workerUrl';const raw=$(id).value.trim().replace(/\/+$/,'');if(!raw)throw Error('آدرس Worker را وارد کنید');let u;try{u=new URL(raw)}catch(e){throw Error('آدرس Worker معتبر نیست؛ نشانی کامل https:// را وارد کنید')}if(u.protocol!=='https:')throw Error('آدرس Worker باید با https شروع شود');return raw}
+function workerEndpoint(endpoint,params={},exchange=selectedExchange()){const u=new URL(workerBase(exchange)+'/');u.searchParams.set('endpoint',endpoint);for(const [k,v] of Object.entries(params))if(v!==undefined&&v!==null)u.searchParams.set(k,String(v));return u.toString()}
+$('workerUrl').addEventListener('change',()=>{try{localStorage.setItem('hrs_nobitex_worker',$('workerUrl').value.trim())}catch(e){}});$('binanceWorkerUrl').addEventListener('change',()=>{try{localStorage.setItem('hrs_binance_worker',$('binanceWorkerUrl').value.trim())}catch(e){}});$('exchange').addEventListener('change',()=>{try{localStorage.setItem('hrs_exchange',selectedExchange())}catch(e){};const bin=selectedExchange()==='BINANCE';document.querySelectorAll('[data-exchange]').forEach(b=>b.classList.toggle('active',b.dataset.exchange===selectedExchange()));$('dataSource').textContent=bin?'منبع داده: Binance Public Market API · صرافی اصلی · نوبیتکس گزینه دوم':'منبع داده: Nobitex Public Market API · صرافی دوم · بایننس صرافی اصلی';$('marketmeta').textContent=bin?'قیمت‌ها بر حسب USDT · بایننس':'قیمت‌ها بر حسب USDT · تبدیل از بازار ریالی نوبیتکس'});
+function setStatus(s,on=false){$('status').textContent=s;$('dot').className='dot'+(on?' on':'')}
+function setTf(id,label,dir=0){const el=$(id);if(!el)return;el.textContent=label;el.className=dir>0?'up':dir<0?'down':'flat'}
+function fmt(n){return n==null||!Number.isFinite(Number(n))?'—':Number(n).toLocaleString('en-US',{maximumFractionDigits: n<1?6:2})}
+function tfMinutes(tf){return tf==='1m'?1:tf==='5m'?5:tf==='15m'?15:tf==='1h'?60:tf==='4h'?240:1440}
+function tfLabel(tf){return ({'1m':'1m','5m':'5m','15m':'15m','1h':'1H','4h':'4H','1d':'1D'})[tf]||tf}
+function updateTfLabels(tf=$('interval').value){const label=tfLabel(tf);$('tfMainLabel').textContent='ساختار '+label;$('tfFlowLabel').textContent=tf==='5m'?'جریان 1m':'جریان کندل '+label} 
+function validateCandleInterval(bars,tf){const expected=tfMinutes(tf)*60000,diffs=[];for(let i=1;i<bars.length;i++){const d=bars[i].t-bars[i-1].t;if(d>0)diffs.push(d)}if(diffs.length<20)throw Error(`برای کنترل تایم‌فریم ${tfLabel(tf)} کندل کافی دریافت نشد`);const exact=diffs.filter(d=>d>=expected*.8&&d<=expected*1.2).length,ratio=exact/diffs.length;if(ratio<.70){const med=[...diffs].sort((a,b)=>a-b)[Math.floor(diffs.length/2)];const got=med<60000?'زیر 1m':med%86400000===0?(med/86400000)+'D':med%3600000===0?(med/3600000)+'H':(med/60000)+'m';throw Error(`ناهماهنگی تایم‌فریم: ${tfLabel(tf)} درخواست شد اما فاصله کندل‌های برگشتی عمدتاً ${got} است. داده اشتباه تحلیل نشد؛ Worker/صرافی را بررسی کنید.`)}return {expected,exactRatio:ratio}}
+async function fetchJson(url,timeoutMs=18000){const controller=new AbortController();const timerId=setTimeout(()=>controller.abort(),timeoutMs);try{const r=await fetch(url,{cache:'no-store',signal:controller.signal,headers:{'Accept':'application/json'}});let j;try{j=await r.json()}catch(e){throw Error(`پاسخ Worker JSON معتبر نیست (HTTP ${r.status})`)}if(!r.ok||j?.ok===false){const up=j?.upstreamStatus?` · پاسخ سرور نوبیتکس: ${j.upstreamStatus}`:'';const detail=j?.data?.errmsg||j?.data?.message||j?.error||j?.data?.raw||'';throw Error(`Worker خطا داد (HTTP ${r.status}${up}) ${String(detail).slice(0,180)}`)}return j}catch(e){if(e.name==='AbortError')throw Error('پاسخ Worker بیش از ۱۸ ثانیه طول کشید (Timeout)');if(e instanceof TypeError)throw Error('خطای شبکه/CORS در اتصال به Worker؛ آدرس و Deploy را بررسی کنید');throw e}finally{clearTimeout(timerId)}}
+function quoteInfo(symbol){const q=['USDT','IRT'].find(x=>symbol.endsWith(x));if(!q)throw Error('برای جلوگیری از تبدیل اشتباه، فعلاً فقط جفت‌های USDT و IRT پشتیبانی می‌شوند؛ جفت‌های USDC/BTC/ETH را انتخاب نکنید');const base=symbol.slice(0,-q.length);if(!base)throw Error('نماد پایه نامعتبر است');return {base,quote:q,market:base+'IRT'}}
+function nobitexSymbol(symbol){return quoteInfo(symbol).market}
+async function fetchUsdtRate(){
+ const j=await fetchJson(workerEndpoint('stats',{currency:'usdt',quote:'rls'}));
+ const stats=j?.data?.stats||{};
+ const m=stats['usdt-rls']||stats['usdt-irt'];
+ const rate=Number(m?.latest);
+ if(!Number.isFinite(rate)||rate<=0)throw Error('نرخ تبدیل تتر به ریال از نوبیتکس دریافت نشد؛ نمایش قیمت دلاری متوقف شد تا قیمت ریالی اشتباه نشان داده نشود');
+ return rate;
+}
+async function fetchKlines(symbol,interval,limit,usdtRate,toSecOverride=null){
+ const ex=selectedExchange(),resolution=interval==='1m'?'1':interval==='1d'?'D':interval==='4h'?'240':interval==='1h'?'60':interval==='15m'?'15':'5';
+ const countback=Math.min(10000,Math.max(50,Number(limit)||10000));
+ const secondsPerBar=resolution==='D'?86400:Number(resolution)*60;
+ const to=toSecOverride!==null&&toSecOverride!==undefined&&Number.isFinite(Number(toSecOverride))?Math.floor(Number(toSecOverride)):Math.floor(Date.now()/1000),from=to-secondsPerBar*(countback+5);
+ let j,d,rate=usdtRate;
+ if(ex==='BINANCE'){
+  if(!symbol.endsWith('USDT'))throw Error('در بایننس فقط جفت‌های USDT پشتیبانی می‌شوند؛ مثلاً BTCUSDT');
+  j=await fetchJson(workerEndpoint('candles',{symbol,resolution,limit:countback,from,to},'BINANCE'));d=j.data;rate=1;
+ }else{
+  const qi=quoteInfo(symbol),market=qi.market;
+  j=await fetchJson(workerEndpoint('candles',{symbol:market,resolution,countback,from,to},'NOBITEX'));d=j.data;
+  if(!Number.isFinite(rate)||rate<=0)throw Error('نرخ تبدیل USDT/IRT معتبر نیست');
+ }
+ if(d?.s!=='ok'||!Array.isArray(d.t)||!d.t.length)throw Error(d?.errmsg||`${ex} برای ${symbol} کندل ${interval} برنگرداند (وضعیت: ${d?.s||'نامشخص'})`);
+ const n=d.t.length;if(!Array.isArray(d.o)||!Array.isArray(d.h)||!Array.isArray(d.l)||!Array.isArray(d.c)||d.o.length!==n||d.h.length!==n||d.l.length!==n||d.c.length!==n)throw Error('ساختار پاسخ کندل ناقص است');
+ const out=d.t.map((t,i)=>({t:Number(t)*1000,o:Number(d.o[i])/rate,h:Number(d.h[i])/rate,l:Number(d.l[i])/rate,c:Number(d.c[i])/rate,v:Number(d.v?.[i]||0),buyV:Number.isFinite(Number(d.takerBuyBase?.[i]))?Number(d.takerBuyBase[i]):null})).filter(x=>[x.t,x.o,x.h,x.l,x.c,x.v].every(Number.isFinite)&&x.t>0&&x.h>=x.l&&x.h>=Math.max(x.o,x.c)&&x.l<=Math.min(x.o,x.c));
+ out.sort((a,b)=>a.t-b.t);const dedup=out.filter((x,i)=>!i||x.t!==out[i-1].t);return dedup.slice(-Number(limit));
+}
+async function fetchKlinesChunked(symbol,interval,total,usdtRate){const size=9500,need=Math.max(50,Math.min(50000,Number(total)||10000));if(need<=10000)return fetchKlines(symbol,interval,need,usdtRate);const step=tfMinutes(interval)*60,now=Math.floor(Date.now()/1000),chunks=Math.ceil(need/size),jobs=[];for(let k=chunks-1;k>=0;k--){const count=Math.min(size,need-k*size),end=now-k*size*step;jobs.push(fetchKlines(symbol,interval,count,usdtRate,end))}const pages=await Promise.all(jobs),merged=pages.flat().sort((a,b)=>a.t-b.t),dedup=merged.filter((x,i)=>!i||x.t!==merged[i-1].t);return dedup.slice(-need)}
+async function fetchPrice(symbol,usdtRate){try{const ex=selectedExchange();if(ex==='BINANCE'){if(!symbol.endsWith('USDT'))return null;const j=await fetchJson(workerEndpoint('stats',{symbol},'BINANCE'));const d=j?.data||{};const px=Number(d.lastPrice),chg=Number(d.priceChangePercent);if(!Number.isFinite(px)||px<=0)return null;return {lastPrice:px,priceChangePercent:Number.isFinite(chg)?chg:0}}const {base}=quoteInfo(symbol);if(!Number.isFinite(usdtRate)||usdtRate<=0)return null;const j=await fetchJson(workerEndpoint('stats',{currency:base.toLowerCase(),quote:'rls'},'NOBITEX'));const stats=j?.data?.stats||{};const m=stats[`${base.toLowerCase()}-rls`]||stats[`${base.toLowerCase()}-irt`];if(!m)return null;const px=Number(m.latest)/usdtRate,chg=Number(m.dayChange);if(!Number.isFinite(px)||px<=0)return null;return {lastPrice:px,priceChangePercent:Number.isFinite(chg)?chg:0}}catch(e){return null}}
+async function refreshLivePrice(){
+ if(!$('market'))return;const symbol=$('symbol').value.trim().toUpperCase();try{const now=Date.now();if(selectedExchange()==='NOBITEX'&&(!lastTickerRate||now-lastTickerRateAt>30000)){lastTickerRate=await fetchUsdtRate();lastTickerRateAt=now}const tick=await fetchPrice(symbol,selectedExchange()==='BINANCE'?1:lastTickerRate);if(!tick||!Number.isFinite(+tick.lastPrice)||+tick.lastPrice<=0)return;const el=$('lastprice'),old=lastLivePrice;lastLivePrice=+tick.lastPrice;updateLiveCandle(lastLivePrice);el.textContent=fmt(lastLivePrice);if($('dashPrice'))$('dashPrice').textContent=fmt(lastLivePrice);if($('dashPair'))$('dashPair').textContent=$('pair').textContent;el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');$('pricechange').textContent=`${fmt(+tick.priceChangePercent)}% · تغییر ۲۴ساعته · به‌روزرسانی ${new Date().toLocaleTimeString('fa-IR')}`;$('pricechange').className='change '+(+tick.priceChangePercent>=0?'green':'red');if($('dashChange')){$('dashChange').textContent=`تغییر ۲۴ساعته ${fmt(+tick.priceChangePercent)}%`;$('dashChange').className='dash-change '+(+tick.priceChangePercent>=0?'green':'red')} $('marketmeta').dataset.live='1';}catch(e){/* قیمت قبلی حفظ می‌شود؛ خطای موقت تیکر تحلیل را متوقف نمی‌کند */}
+}
+function updateLiveCandle(price){if(!candles.length||!Number.isFinite(price)||price<=0)return;const ms=tfMinutes($('interval').value)*60000,barTime=Math.floor(Date.now()/ms)*ms,last=candles[candles.length-1];if(!liveCandle||liveCandle.t!==barTime){liveCandle={t:barTime,o:last.c,h:Math.max(last.c,price),l:Math.min(last.c,price),c:price,v:0,live:true}}else{liveCandle.h=Math.max(liveCandle.h,price);liveCandle.l=Math.min(liveCandle.l,price);liveCandle.c=price}drawChart()}
+function startLivePrice(){clearInterval(priceTimer);clearInterval(clockTimer);refreshLivePrice();/* قیمت و شمارش معکوس همگام با کندل؛ بدون مکث ۵ ثانیه‌ای */priceTimer=setInterval(refreshLivePrice,1000);clockTimer=setInterval(()=>{const el=$('marketCountdown');if(el)el.textContent=candleCountdown();const dc=$('dashCountdown');if(dc)dc.textContent=candleCountdown();if(liveCandle&&chartOffset===0)drawChart()},1000)}
+function stopLivePrice(){clearInterval(priceTimer);clearInterval(clockTimer);priceTimer=null;clockTimer=null}
+function syncDashboardMarket(){if($('dashPair')&&$('pair'))$('dashPair').textContent=$('pair').textContent;if($('dashCountdown'))$('dashCountdown').textContent=candleCountdown()} syncDashboardMarket();
+function ema(values,p){let k=2/(p+1),v=values[0]||0;for(let i=1;i<values.length;i++)v=values[i]*k+v*(1-k);return v}
+function rsi(values,p=14){if(values.length<p+1)return 50;let g=0,l=0;for(let i=1;i<=p;i++){let d=values[i]-values[i-1];g+=Math.max(d,0);l+=Math.max(-d,0)}let ag=g/p,al=l/p;for(let i=p+1;i<values.length;i++){let d=values[i]-values[i-1];ag=(ag*(p-1)+Math.max(d,0))/p;al=(al*(p-1)+Math.max(-d,0))/p}return al===0?100:100-100/(1+ag/al)}
+function atr(cs,p=14){if(!cs.length)return 0;let v=cs[0].h-cs[0].l;for(let i=1;i<cs.length;i++){let tr=Math.max(cs[i].h-cs[i].l,Math.abs(cs[i].h-cs[i-1].c),Math.abs(cs[i].l-cs[i-1].c));v=i<p?(v*i+tr)/(i+1):(v*(p-1)+tr)/p}return v}
+function candleCountdown(){const ms=tfMinutes($('interval').value)*60000,remain=ms-(Date.now()%ms);const sec=Math.max(0,Math.ceil(remain/1000)),hh=Math.floor(sec/3600),mm=Math.floor((sec%3600)/60),ss=sec%60;return hh>0?`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`:`${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`}
+
+function renderChartLatestPlan(){const el=$('chartLatestPlan');if(!el)return;const all=[...(analysisResult?.pLedger||[]),...(analysisResult?.sLedger||[])].filter(x=>Number.isFinite(+x.bar)).sort((a,b)=>b.bar-a.bar),q=all[0];if(!q){el.innerHTML='<b>پلن آخرین سیگنال</b><span>هنوز سیگنالی در تاریخچه این تحلیل ثبت نشده است.</span>';return}const dir=Number(q.dir)===1?'BUY':'SELL';el.innerHTML=`<b>آخرین سیگنال ${dir} · ${q.open?'فعال':'بسته‌شده'} · ${q.source||q.engine||'سیگنال'}</b><div class="lv entry"><small>نقطه ورود</small><strong>${fmt(q.entry)}</strong></div><div class="lv stop"><small>حد ضرر</small><strong>${fmt(q.stop)}</strong></div><div class="lv tp1"><small>حد سود ۱</small><strong>${fmt(q.t1)}</strong></div><div class="lv tp2"><small>حد سود ۲</small><strong>${fmt(q.t2)}</strong></div>`}
+function drawChart(){
+ const c=$('chart'),wrap=$('chartWrap');if(!c||!wrap)return;const rect=wrap.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1),cssW=Math.max(280,rect.width),cssH=Math.max(190,rect.height);const pw=Math.round(cssW*dpr),ph=Math.round(cssH*dpr);if(c.width!==pw||c.height!==ph){c.width=pw;c.height=ph}const ctx=c.getContext('2d'),w=cssW,h=cssH;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);if(!candles.length)return;
+ const vis=Number($('visible').value),end=Math.max(0,candles.length-chartOffset),begin=Math.max(0,end-vis),data=candles.slice(begin,end),start=begin;
+ const allLedgers=[...(analysisResult?.pLedger||[]),...(analysisResult?.sLedger||[])].filter(x=>Number.isFinite(+x.bar)).sort((a,b)=>b.bar-a.bar);
+ const latestSignal=allLedgers[0]||null,st=analysisResult?.structure;
+ const signalLevels=latestSignal?[latestSignal.entry,latestSignal.stop,latestSignal.t1,latestSignal.t2].filter(v=>Number.isFinite(+v)).map(Number):[];
+ const rangeLevels=st?[st.rangeHi,st.rangeLo,st.mid].filter(v=>Number.isFinite(+v)).map(Number):[];
+ let lo=Math.min(...data.map(x=>x.l),...(liveCandle&&chartOffset===0?[liveCandle.l]:[]),...signalLevels,...rangeLevels),hi=Math.max(...data.map(x=>x.h),...(liveCandle&&chartOffset===0?[liveCandle.h]:[]),...signalLevels,...rangeLevels),pad=(hi-lo)*.08||1;lo-=pad;hi+=pad;const baseMid=(hi+lo)/2,baseRange=Math.max(hi-lo,1e-12),viewRange=baseRange/Math.max(.04,Math.min(30,chartPriceScale));const shiftedMid=baseMid+chartPriceShift*baseRange;lo=shiftedMid-viewRange/2;hi=shiftedMid+viewRange/2;const slots=data.length+(liveCandle&&chartOffset===0?1:0);
+ const plotRight=w-70,plotWidth=Math.max(150,plotRight-14),priceBottom=h-78,priceHeight=Math.max(100,priceBottom-20),y=v=>20+(hi-v)/(hi-lo)*priceHeight,xAt=i=>14+(i-start+.5)*(plotWidth/slots),step=plotWidth/slots,bw=Math.max(2,step*.58);
+ ctx.strokeStyle='#293543';ctx.lineWidth=1;for(let i=0;i<5;i++){let yy=20+i*priceHeight/4;ctx.beginPath();ctx.moveTo(8,yy);ctx.lineTo(plotRight,yy);ctx.stroke()}
+ data.forEach((d,i)=>{let x=14+i*step+step/2,yo=y(d.o),yc=y(d.c),yh=y(d.h),yl=y(d.l),col=d.c>=d.o?'#25c58a':'#ef6464';ctx.strokeStyle=col;ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,yh);ctx.lineTo(x,yl);ctx.stroke();ctx.fillRect(x-bw/2,Math.min(yo,yc),bw,Math.max(1,Math.abs(yc-yo)))});
+ if(liveCandle&&chartOffset===0){const d=liveCandle,x=14+(data.length+.5)*step,yo=y(d.o),yc=y(d.c),yh=y(d.h),yl=y(d.l),col=d.c>=d.o?'#25c58a':'#ef6464';ctx.save();ctx.globalAlpha=.72;ctx.strokeStyle=col;ctx.fillStyle=col;ctx.setLineDash([2,2]);ctx.beginPath();ctx.moveTo(x,yh);ctx.lineTo(x,yl);ctx.stroke();ctx.setLineDash([]);ctx.fillRect(x-bw/2,Math.min(yo,yc),bw,Math.max(1,Math.abs(yc-yo)));ctx.restore()}
+ const vTop=priceBottom+10,vBottom=h-22,vMax=Math.max(1,...data.map(x=>x.v||0));ctx.save();ctx.strokeStyle='#293543';ctx.beginPath();ctx.moveTo(8,vTop);ctx.lineTo(plotRight,vTop);ctx.stroke();data.forEach((d,i)=>{const bh=Math.max(1,((d.v||0)/vMax)*(vBottom-vTop-2)),xx=14+i*step+step/2;ctx.fillStyle=d.c>=d.o?'rgba(37,197,138,.48)':'rgba(239,100,100,.48)';ctx.fillRect(xx-bw/2,vBottom-bh,bw,bh)});ctx.fillStyle='#8492a3';ctx.font='9px system-ui';ctx.textAlign='left';ctx.fillText('VOL',9,vTop+10);ctx.restore();
+ if(!st)return;
+ const zone=(z,color,label)=>{if(!z||!Number.isFinite(+z.top)||!Number.isFinite(+z.bot)||Math.max(+z.top,+z.bot)<lo||Math.min(+z.top,+z.bot)>hi)return;const yy=y(Math.max(+z.top,+z.bot)),yb=y(Math.min(+z.top,+z.bot));ctx.save();ctx.fillStyle=color;ctx.fillRect(10,Math.min(yy,yb),plotRight-10,Math.max(2,Math.abs(yb-yy)));if(label){ctx.fillStyle=color.replace(/,[^,]+\)$/,' ,0.95)');ctx.font='bold 9px system-ui';ctx.textAlign='left';ctx.fillText(label,14,Math.max(18,Math.min(priceBottom-4,Math.min(yy,yb)+11)))}ctx.restore()};
+ // Decision overlays: active Premium/Discount range, nearest FVG and active POI/OB.
+ if(Number.isFinite(+st.rangeHi)&&Number.isFinite(+st.rangeLo)&&st.rangeHi>st.rangeLo){const eq=Number.isFinite(+st.mid)?+st.mid:(st.rangeHi+st.rangeLo)/2;zone({top:st.rangeHi,bot:eq},'rgba(239,100,100,.075)','PREMIUM');zone({top:eq,bot:st.rangeLo},'rgba(37,197,138,.075)','DISCOUNT');const yy=y(eq);ctx.save();ctx.strokeStyle='#d6b66b';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(10,yy);ctx.lineTo(plotRight,yy);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#d6b66b';ctx.font='9px system-ui';ctx.textAlign='left';ctx.fillText('EQ',14,yy-4);ctx.restore()}
+ if(st.activeFVG)zone(st.activeFVG,st.activeFVG.dir===1?'rgba(37,197,138,.16)':'rgba(239,100,100,.16)','FVG');
+ if(st.activeOB)zone(st.activeOB,st.activeOB.dir===1?'rgba(39,126,224,.18)':'rgba(224,143,39,.18)','OB / POI');
+ // Compact structure and order-pressure status; values are calculated by the existing engine.
+ ctx.save();ctx.fillStyle='rgba(7,16,29,.88)';ctx.fillRect(12,24,126,43);ctx.strokeStyle='#34506f';ctx.strokeRect(12,24,126,43);ctx.font='bold 9px system-ui';ctx.textAlign='left';ctx.fillStyle=st.trend===1?'#25c58a':st.trend===-1?'#ef6464':'#d6b66b';ctx.fillText('STRUCT '+(st.trend===1?'BULL':st.trend===-1?'BEAR':'NEUTRAL'),18,40);ctx.fillStyle='#c6d3e2';ctx.fillText('PDI '+(Number.isFinite(+st.pdi)?(+st.pdi).toFixed(1):'—')+' / MDI '+(Number.isFinite(+st.mdi)?(+st.mdi).toFixed(1):'—'),18,56);ctx.restore();
+ const hlineLabelYs=[];const hline=(v,label,color,dash=[5,5])=>{if(!Number.isFinite(v)||v<lo||v>hi)return;const lineY=y(v);ctx.save();ctx.strokeStyle=color;ctx.lineWidth=1;ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(8,lineY);ctx.lineTo(plotRight,lineY);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=color;ctx.font='10px system-ui';ctx.textAlign='right';let labelY=Math.max(29,Math.min(priceBottom-5,lineY-3));for(let tries=0;tries<8&&hlineLabelYs.some(v=>Math.abs(v-labelY)<13);tries++)labelY+=14;hlineLabelYs.push(labelY);ctx.fillText(label+' '+fmt(v),plotRight-5,labelY);ctx.restore()};
+ // Minimal chart display: hide analytical overlays (Premium/Discount, FVG, PDI/MDI,
+ // OB/POI zones and other diagnostic marks). Their calculations remain active internally.
+ // The chart focuses on historical BUY/SELL signals and the active trade marker.
+ // Plot every historical issued signal from both execution ledgers, not only the latest active trade.
+ const ledgers=allLedgers.slice().reverse();
+ const seen=new Set();
+ for(const sig of ledgers){
+  const bi=Number(sig.bar);if(!Number.isFinite(bi)||bi<start||bi>=end||bi<0||bi>=candles.length)continue;
+  const key=bi+':'+sig.dir+':'+(sig.source||sig.engine||'');if(seen.has(key))continue;seen.add(key);
+  const up=Number(sig.dir)===1,xx=xAt(bi),entry=Number.isFinite(+sig.entry)?+sig.entry:candles[bi].c,yy=y(entry);
+  const active=!!sig.open,clr=up?'#20df91':'#ff6475';ctx.save();ctx.globalAlpha=active?1:.68;ctx.fillStyle=clr;ctx.strokeStyle='#06101d';ctx.lineWidth=1.5;
+  ctx.beginPath();if(up){ctx.moveTo(xx,yy-13);ctx.lineTo(xx-7,yy-2);ctx.lineTo(xx+7,yy-2)}else{ctx.moveTo(xx,yy+13);ctx.lineTo(xx-7,yy+2);ctx.lineTo(xx+7,yy+2)}ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.fillStyle=clr;ctx.fillText(up?'BUY':'SELL',xx,up?yy-16:yy+23);ctx.restore();
+ }
+ // Keep the current best trade emphasized when its bar is inside the visible window.
+ const plan=analysisResult?.best;if(plan&&Number.isFinite(+plan.bar)&&plan.bar>=start&&plan.bar<end){const xx=xAt(+plan.bar),yy=y(plan.entry??candles[+plan.bar].c);ctx.save();ctx.strokeStyle='#ffd166';ctx.lineWidth=2;ctx.beginPath();ctx.arc(xx,yy,9,0,Math.PI*2);ctx.stroke();ctx.restore()}
+ // Highlight the newest issued signal with its exact entry, structural stop and targets.
+ if(latestSignal){
+  const levels=[['ENTRY',latestSignal.entry,'#e8c66a',[5,4]],['SL',latestSignal.stop,'#ff6475',[7,3]],['TP1',latestSignal.t1,'#25c58a',[5,3]],['TP2',latestSignal.t2,'#55b7e8',[2,3]]];
+  const sigBar=Number(latestSignal.bar),x0=(sigBar>=start&&sigBar<end)?Math.max(14,Math.min(plotRight-4,xAt(sigBar))):14;
+  for(const [label,value,color,dash] of levels){const v=Number(value);if(!Number.isFinite(v)||v<lo||v>hi)continue;const yy=y(v);ctx.save();ctx.strokeStyle=color;ctx.lineWidth=label==='ENTRY'?1.5:1.2;ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(x0,yy);ctx.lineTo(plotRight,yy);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=color;ctx.font='bold 9px system-ui';ctx.textAlign='right';ctx.fillText(label+' '+fmt(v),plotRight-4,Math.max(18,Math.min(priceBottom-3,yy-4)));ctx.restore()}
+  const dir=Number(latestSignal.dir)===1?'BUY':'SELL',isOpen=!!latestSignal.open;
+  ctx.save();ctx.fillStyle='rgba(7,16,29,.94)';ctx.fillRect(148,24,Math.min(166,w-160),43);ctx.strokeStyle=isOpen?'#d6b66b':'#53657a';ctx.strokeRect(148,24,Math.min(166,w-160),43);ctx.fillStyle=dir==='BUY'?'#25c58a':'#ff6475';ctx.font='bold 10px system-ui';ctx.textAlign='left';ctx.fillText('LATEST '+dir+(isOpen?' · OPEN':' · CLOSED'),155,41);ctx.fillStyle='#d5deea';ctx.font='9px system-ui';ctx.fillText('Entry / SL / TP1 / TP2',155,56);ctx.restore();
+ }
+ // Draw recent liquidity sweeps and confirmed structure breaks/changes.
+ const evs=[...(st.sweepEvents||[]).map(e=>({...e,kind:'SWEEP'})),...(st.structureEvents||[]).map(e=>({...e,kind:e.choch?'CHOCH':'BOS'}))];
+ for(const ev of evs){if(ev.bar<start||ev.bar>=end)continue;const xx=xAt(ev.bar),price=Number.isFinite(+ev.price)?+ev.price:Number.isFinite(+ev.level)?+ev.level:candles[ev.bar]?.c;if(!Number.isFinite(price)||price<lo||price>hi)continue;const yy=y(price),color=ev.dir===1?'#25c58a':'#ef9b55';ctx.save();if(ev.kind==='SWEEP'){ctx.fillStyle=color;ctx.strokeStyle='#07111f';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(xx,ev.dir===1?yy+5:yy-5,4,0,Math.PI*2);ctx.fill();ctx.stroke()}else{ctx.fillStyle=color;ctx.font='bold 8px system-ui';ctx.textAlign='center';ctx.fillText(ev.kind,xx,ev.dir===1?yy+13:yy-9)}ctx.restore()}
+ // Readable price/time scales and pointer crosshair (all values from displayed candles).
+ ctx.save();ctx.fillStyle='#9aa8b8';ctx.font='10px system-ui';ctx.textAlign='right';for(let q=0;q<=4;q++){const v=hi-(hi-lo)*q/4,yy=y(v);ctx.fillText(fmt(v),w-5,yy-2)}ctx.textAlign='center';for(let q=0;q<4;q++){const idx=Math.min(data.length-1,Math.floor(q*(data.length-1)/3));if(idx>=0){const dt=new Date(data[idx].t);ctx.fillText(dt.toLocaleString('fa-IR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}),xAt(start+idx),h-5)}}
+ if(chartPointer&&chartPointer.x>=8&&chartPointer.x<=plotRight&&chartPointer.y>=12&&chartPointer.y<=priceBottom){const px=chartPointer.x,py=chartPointer.y,price=hi-(py-20)/priceHeight*(hi-lo),idx=Math.max(0,Math.min(data.length-1,Math.floor((px-14)/step))),bar=data[idx];ctx.strokeStyle='rgba(220,230,240,.55)';ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(px,12);ctx.lineTo(px,vBottom);ctx.moveTo(8,py);ctx.lineTo(plotRight,py);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#17212d';ctx.fillRect(Math.max(8,Math.min(plotRight-112,px+8)),Math.max(12,py-28),110,22);ctx.fillStyle='#e8edf4';ctx.textAlign='left';ctx.fillText(fmt(price),Math.max(13,Math.min(plotRight-107,px+13)),Math.max(27,py-13));if(bar){ctx.fillStyle='#9aa8b8';ctx.fillText(new Date(bar.t).toLocaleString('fa-IR'),10,14)}} // Live TradingView-style right-axis marker: follows the active candle's price and shows its close countdown.
+ const livePrice=liveCandle&&chartOffset===0?liveCandle.c:(lastLivePrice&&chartOffset===0?lastLivePrice:null);
+ if(Number.isFinite(livePrice)&&livePrice>=lo&&livePrice<=hi){const py=y(livePrice),tagX=plotRight+4,tagW=w-tagX-2,tagH=34,tagY=Math.max(20,Math.min(priceBottom-tagH,py-tagH/2));ctx.save();ctx.strokeStyle='#25c58a';ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(14+(data.length+.5)*step,py);ctx.lineTo(plotRight,py);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#0b8f68';ctx.fillRect(tagX,tagY,tagW,tagH);ctx.fillStyle='#ffffff';ctx.textAlign='center';ctx.font='bold 10px system-ui';ctx.fillText(fmt(livePrice),tagX+tagW/2,tagY+13);ctx.font='9px system-ui';ctx.fillText(candleCountdown(),tagX+tagW/2,tagY+27);ctx.restore()}
+ctx.restore();
+}
+// Pine-oriented SMC/ICT calculation engine. All decisions are made on closed bars.
+// Pine-oriented SMC/ICT calculation engine. All decisions are made on closed bars.
+// Pine-oriented SMC/ICT calculation engine. All decisions are made on closed bars.
+// Pine-oriented SMC/ICT calculation engine. All decisions are made on closed bars.
+// Pine-oriented SMC/ICT calculation engine. All decisions are made on closed bars.
+// Pine-oriented SMC/ICT calculation engine. All decisions are made on closed bars.
+// Pine-oriented SMC/ICT calculation engine. All decisions are made on closed bars.
+// Pine-oriented SMC/ICT calculation engine. All decisions are made on closed bars.
+// Pine-oriented SMC/ICT calculation engine. All decisions are made on closed bars.
+// Pine-oriented SMC/ICT calculation engine. All decisions are made on closed bars.
+// Pine-oriented SMC/ICT calculation engine. All decisions are made on closed bars.
+// Pine-oriented SMC/ICT calculation engine. All decisions are made on closed bars.
+function sma(a,n){const x=a.slice(-n);return x.length?x.reduce((v,z)=>v+z,0)/x.length:0}
+function trAt(cs,i){const c=cs[i],p=cs[i-1];return !p?c.h-c.l:Math.max(c.h-c.l,Math.abs(c.h-p.c),Math.abs(c.l-p.c))}
+function rmaSeries(a,n){const out=[];let v=null,seed=[];for(let i=0;i<a.length;i++){const x=a[i];if(x==null||!Number.isFinite(x)){out.push(null);continue}if(v==null){seed.push(x);if(seed.length===n){v=seed.reduce((s,z)=>s+z,0)/n;seed=[]}}else v=(v*(n-1)+x)/n;out.push(v)}return out}
+function emaSeries(a,n){if(!a.length)return [];const out=[],k=2/(n+1);let v=a[0];for(let i=0;i<a.length;i++){v=i===0?a[i]:a[i]*k+v*(1-k);out.push(v)}return out}
+function indicatorPack(cs){const n=cs.length,cl=cs.map(x=>x.c),tr=cs.map((_,i)=>trAt(cs,i)),atr=rmaSeries(tr,14),gain=[],loss=[],pdm=[],mdm=[];for(let i=0;i<n;i++){const d=i?cl[i]-cl[i-1]:0;gain.push(i?Math.max(d,0):null);loss.push(i?Math.max(-d,0):null);const up=i?cs[i].h-cs[i-1].h:null,down=i?cs[i-1].l-cs[i].l:null;pdm.push(i?(up>down&&up>0?up:0):null);mdm.push(i?(down>up&&down>0?down:0):null)}const ag=rmaSeries(gain,14),al=rmaSeries(loss,14),p=rmaSeries(pdm,14),m=rmaSeries(mdm,14),dx=[];for(let i=0;i<n;i++){const den=(atr[i]||0)*14,diP=den&&p[i]!=null?p[i]*100/den:null,diM=den&&m[i]!=null?m[i]*100/den:null;dx.push(diP==null||diM==null?null:(diP+diM?100*Math.abs(diP-diM)/(diP+diM):0))}const adx=rmaSeries(dx,14),rsi=cl.map((_,i)=>{const x=ag[i],y=al[i];return x==null||y==null?50:y===0?100:100-100/(1+x/y)});return {ema20:emaSeries(cl,20),ema34:emaSeries(cl,34),ema50:emaSeries(cl,50),atr,adx,pdi:p.map((x,i)=>x==null?null:(atr[i]||0)>0?x/(atr[i]*14)*100:0),mdi:m.map((x,i)=>x==null?null:(atr[i]||0)>0?x/(atr[i]*14)*100:0),rsi}}
+// Mirrors Pine f_struct(): confirmed pivot, close-based BOS, protected-level CHOCH.
+function buildStructSeries(cs,len){let hi=null,lo=null,hiBar=null,loBar=null,hiOk=false,loOk=false,trend=0,protHi=null,protLo=null;const out=[];for(let i=0;i<cs.length;i++){const k=i-len;if(k>=len&&i>=k+len){let isH=true,isL=true;for(let j=k-len;j<=k+len;j++){if(j===k)continue;if(cs[j].h>=cs[k].h)isH=false;if(cs[j].l<=cs[k].l)isL=false}if(isH){hi=cs[k].h;hiBar=k;hiOk=true}if(isL){lo=cs[k].l;loBar=k;loOk=true}}
+ const c=cs[i];let bull=false,bear=false,chochBull=false,chochBear=false,level=null,levelBar=null;
+ if(trend===-1&&protHi!=null&&c.c>protHi.v){bull=true;chochBull=true;level=protHi.v;levelBar=protHi.bar;trend=1;protLo=lo==null?null:{v:lo,bar:loBar};if(hiOk&&hi!=null&&c.c>hi)hiOk=false}
+ else if(trend===1&&protLo!=null&&c.c<protLo.v){bear=true;chochBear=true;level=protLo.v;levelBar=protLo.bar;trend=-1;protHi=hi==null?null:{v:hi,bar:hiBar};if(loOk&&lo!=null&&c.c<lo)loOk=false}
+ else if(trend!==-1&&hiOk&&hi!=null&&c.c>hi){bull=true;level=hi;levelBar=hiBar;hiOk=false;trend=1;let mn=Infinity,mi=i;for(let j=Math.max(0,i-Math.min(i-hiBar,250));j<=i;j++)if(cs[j].l<mn){mn=cs[j].l;mi=j}protLo=mn===Infinity?protLo:{v:mn,bar:mi}}
+ else if(trend!==1&&loOk&&lo!=null&&c.c<lo){bear=true;level=lo;levelBar=loBar;loOk=false;trend=-1;let mx=-Infinity,xi=i;for(let j=Math.max(0,i-Math.min(i-loBar,250));j<=i;j++)if(cs[j].h>mx){mx=cs[j].h;xi=j}protHi=mx===-Infinity?protHi:{v:mx,bar:xi}}
+ out.push({trend,hi,lo,hiBar,loBar,hiOk,loOk,protHi:protHi?.v??null,protHiBar:protHi?.bar??null,protLo:protLo?.v??null,protLoBar:protLo?.bar??null,bull,bear,chochBull,chochBear,level,levelBar});}
+ return out}
+function buildHtfContexts(main,cs15,cs60,mainMinutes,sensitivity='MEDIUM',swingOverride=0){const sn=sensitivity==='LOW'?3:sensitivity==='HIGH'?8:5,sw=Number(swingOverride)>0?Math.min(250,Math.max(2,Math.round(Number(swingOverride)))):Math.max(3,Math.round(16-1.2*sn)),il=Math.max(2,Math.round(sw/3)),e15=buildStructSeries(cs15,sw),i15=buildStructSeries(cs15,il),e60=buildStructSeries(cs60,sw),i60=buildStructSeries(cs60,il);function mapOne(src,ext,inn,mins){let k=0,out=[];for(const c of main){const closeT=c.t;while(k<src.length&&src[k].t+mins*60000<=closeT)k++;const j=k-1;out.push(j>=0?{ext:ext[j].trend,inn:inn[j].trend,bull:ext[j].trend===1&&inn[j].trend===1,bear:ext[j].trend===-1&&inn[j].trend===-1,barTime:src[j].t}: {ext:0,inn:0,bull:false,bear:false,barTime:null})}return out}return {m15:mapOne(cs15,e15,i15,15),m60:mapOne(cs60,e60,i60,60)}}
+function buildFlowMap(ltf,tfMin){const m=new Map(),span=tfMin*60000;for(const x of ltf){const k=Math.floor(x.t/span)*span,z=m.get(k)||{delta:0,buy:0,sell:0,vol:0,poc:null,pocVol:-1,count:0,takerCount:0};const sign=x.c>=x.o?1:-1,hasTaker=Number.isFinite(x.buyV)&&x.buyV>=0&&x.buyV<=x.v*1.001,buy=hasTaker?Math.min(x.v,x.buyV):(sign>0?x.v:0),sell=Math.max(0,x.v-buy);z.delta+=buy-sell;z.vol+=x.v;z.buy+=buy;z.sell+=sell;if(hasTaker)z.takerCount++;if(x.v>z.pocVol){z.pocVol=x.v;z.poc=x.c}z.count++;m.set(k,z)}return m}
+function flowForBar(bar,map,tfMin){const z=map.get(Math.floor(bar.t/(tfMin*60000))*tfMin*60000);if(z&&z.count>=Math.max(1,Math.ceil(tfMin*.7))&&z.vol>0){const real=z.takerCount===z.count,complete=z.count===tfMin,flowLabel=real?(complete?'Taker واقعی بایننس':'Taker بایننس · پوشش ناقص'):'تخمین جهت کندل';return {...z,ratio:100*z.buy/z.vol,deltaPct:z.delta/z.vol,quality:`${z.count}/${tfMin} کندل ۱m · ${flowLabel}`,source:real?(complete?'BINANCE_TAKER':'BINANCE_TAKER_PARTIAL'):'LTF_ESTIMATE'}};const range=Math.max(bar.h-bar.l,1e-12),delta=bar.v*((bar.c-bar.l)-(bar.h-bar.c))/range;return {delta,ratio:50+50*delta/Math.max(bar.v,1e-12),deltaPct:bar.v?delta/bar.v:0,poc:(bar.h+bar.l+bar.c)/3,count:0,vol:bar.v,quality:'جایگزین OHLCV کندل اصلی',source:'FALLBACK'}}
+
+function buildDailyLevels(cs,dailyBars=[]){const ds=[...dailyBars].filter(x=>Number.isFinite(x.t)&&Number.isFinite(x.h)&&Number.isFinite(x.l)).sort((a,b)=>a.t-b.t);let day=null,curH=null,curL=null,prevH=null,prevL=null,firstBar=null,out=[],dPtr=0;for(const c of cs){const d=Math.floor(c.t/86400000),dayStart=d*86400000;if(day===null){day=d;curH=c.h;curL=c.l;firstBar=c.t}else if(d!==day){if(firstBar-day*86400000<=60000){prevH=curH;prevL=curL}else{prevH=null;prevL=null}day=d;curH=c.h;curL=c.l;firstBar=c.t}else{curH=Math.max(curH,c.h);curL=Math.min(curL,c.l)}while(dPtr<ds.length&&ds[dPtr].t<dayStart)dPtr++;const dailyPrev=ds[dPtr-1];if(dailyPrev&&dayStart-dailyPrev.t<=86400000*1.5){prevH=dailyPrev.h;prevL=dailyPrev.l}out.push({pdh:prevH,pdl:prevL,cdh:curH,cdl:curL})}return out}
+function institutionalTypes(active,pressure,delta,position,discount,nearLow,premium,nearHigh,trend,open,close,deltaPct){const strongAccum=active&&pressure>=.55&&delta<0&&position<=.25&&(discount||nearLow),passiveAccum=active&&pressure>=.55&&delta<0&&position<=.40&&(discount||nearLow)&&!strongAccum,strongAbsorb=active&&pressure<=.45&&delta>0&&position>=.75&&(premium||nearHigh),passiveAbsorb=active&&pressure<=.45&&delta>0&&position>=.60&&(premium||nearHigh)&&!strongAbsorb,hiddenAccum=active&&trend===1&&pressure>=.55&&delta<0&&!passiveAccum&&!strongAccum,hiddenShort=active&&trend===-1&&pressure<=.45&&delta>0&&!passiveAbsorb&&!strongAbsorb,aggressiveAccum=active&&close>open&&deltaPct>=.25&&pressure>=.70&&position>=.60,aggressiveDist=active&&close<open&&deltaPct<=-.25&&pressure<=.30&&position<=.40;return {strongAccum,passiveAccum,strongAbsorb,passiveAbsorb,hiddenAccum,hiddenShort,aggressiveAccum,aggressiveDist}}
+function pivotsLast(cs,lb=3){let H=null,L=null;for(let i=lb;i<cs.length-lb;i++){let h=true,l=true;for(let j=1;j<=lb;j++){if(cs[i].h<=cs[i-j].h||cs[i].h<=cs[i+j].h)h=false;if(cs[i].l>=cs[i-j].l||cs[i].l>=cs[i+j].l)l=false}if(h)H={v:cs[i].h,i};if(l)L={v:cs[i].l,i}}return {h:H,l:L}}
+function evaluateSMC(cs,opts={}){
+ const n=cs.length;if(n<55)throw Error('برای محاسبه ساختار به حداقل ۵۵ کندل بسته نیاز است');const profile=opts.profile||'BALANCED',profileCfg=profile==='ACTIVE'?{score:45,rr:1.0,pRR:1.1,ext:1.5,wick:.30,cooldown:0,pScore:34}:profile==='STRICT'?{score:60,rr:1.4,pRR:1.4,ext:1.02,wick:.40,cooldown:2,pScore:44}:{score:52,rr:1.2,pRR:1.2,ext:1.2,wick:.35,cooldown:1,pScore:38};const sens=opts.sensitivity==='LOW'?3:opts.sensitivity==='HIGH'?8:5,swingLen=Number(opts.swingOverride)>0?Math.min(250,Math.max(2,Math.round(Number(opts.swingOverride)))):Math.max(3,Math.round(16-1.2*sens)),intLen=Math.max(2,Math.round(swingLen/3)),gapAtr=1-.09*sens,volMultEff=2.6-.16*sens,actMult=volMultEff*.75;const ind=indicatorPack(cs),ext=buildStructSeries(cs,swingLen),inn=buildStructSeries(cs,intLen),flowMap=buildFlowMap(opts.ltf||[],opts.tfMin||5),tfMin=opts.tfMin||5,ctx=opts.htfContexts||null,daily=buildDailyLevels(cs,opts.dailyBars||[]);
+ let obs=[],breakers=[],fvgs=[],vigs=[],structureEvents=[],sweepEvents=[],sSignals=[],finalSignals=[],sLedger=[],pLedger=[],pre={buy:null,sell:null},lastS={buy:{S1:-10000,S2:-10000,S3:-10000,S4:-10000},sell:{S1:-10000,S2:-10000,S3:-10000,S4:-10000}},lastP={buy:-10000,sell:-10000};
+ let lastSweepLow=-10000,lastSweepHigh=-10000,sPoiLock={buy:null,sell:null};let retestWatch={buy:null,sell:null},pSignals=[];let sSetup={buy:{S1:null,S2:null,S3:null,S4:null},sell:{S1:null,S2:null,S3:null,S4:null}},ote={buy:null,sell:null},pdEdge={buy:null,sell:null},fast={buy:{st:null,cb:null},sell:{st:null,cb:null}},breakerArm={buy:null,sell:null},rangeArm={buy:null,sell:null};let latest={};
+ const swingPoints=[];for(let si=0;si<ext.length;si++){if(ext[si].hiBar!=null&&(si===0||ext[si].hiBar!==ext[si-1].hiBar))swingPoints.push({bar:ext[si].hiBar,price:ext[si].hi,type:'H'});if(ext[si].loBar!=null&&(si===0||ext[si].loBar!==ext[si-1].loBar))swingPoints.push({bar:ext[si].loBar,price:ext[si].lo,type:'L'})}swingPoints.sort((a,b)=>a.bar-b.bar);
+ const vol=cs.map(x=>x.v||0),volSma=[];let volSum=0;for(let vi=0;vi<vol.length;vi++){volSum+=vol[vi];if(vi>=20)volSum-=vol[vi-20];volSma.push(vi>=19?volSum/20:null)}
+ for(let i=0;i<n;i++){
+  const c=cs[i],p=cs[i-1]||c,atr=ind.atr[i]||0.000000001,ema20=ind.ema20[i],ema34=ind.ema34[i],ema50=ind.ema50[i],adx=ind.adx[i]??NaN,pdi=ind.pdi[i]??NaN,mdi=ind.mdi[i]??NaN,st=ext[i],it=inn[i],flow=flowForBar(c,flowMap,tfMin),rng=Math.max(c.h-c.l,1e-12),cp=(c.c-c.l)/rng,body=Math.abs(c.c-c.o)/rng,upW=(c.h-Math.max(c.o,c.c))/rng,loW=(Math.min(c.o,c.c)-c.l)/rng,bull=c.c>c.o&&body>=.42&&cp>=.72,bear=c.c<c.o&&body>=.42&&cp<=.28,bullConfirm=c.c>c.o&&cp>=.60&&c.c>=c.h-rng*.30,bearConfirm=c.c<c.o&&cp<=.40&&c.c<=c.l+rng*.30,strongBullCandle= c.c>c.o&&body>=.6,strongBearCandle=c.c<c.o&&body>=.6;
+  const h15=ctx?.m15?.[i]||{bull:false,bear:false,ext:0,inn:0},h60=ctx?.m60?.[i]||{bull:false,bear:false,ext:0,inn:0},htfBull=h15.bull,htfBear=h15.bear,htf60Bull=h60.bull,htf60Bear=h60.bear;
+  const bosUp=st.bull&&!st.chochBull,bosDn=st.bear&&!st.chochBear,chochUp=st.chochBull,chochDn=st.chochBear,iBosUp=it.bull&&!it.chochBull,iBosDn=it.bear&&!it.chochBear;
+  const ph=st.hi==null?null:{v:st.hi,i:st.hiBar},pl=st.lo==null?null:{v:st.lo,i:st.loBar};const sweepL=st.loOk&&st.lo!=null&&c.l<st.lo&&c.c>=st.lo,sweepH=st.hiOk&&st.hi!=null&&c.h>st.hi&&c.c<=st.hi;
+  if(sweepL){lastSweepLow=i;sweepEvents.push({bar:i,price:c.l,dir:1})}if(sweepH){lastSweepHigh=i;sweepEvents.push({bar:i,price:c.h,dir:-1})}if(st.bull||st.bear)structureEvents.push({bar:i,level:st.level,dir:st.bull?1:-1,choch:st.chochBull||st.chochBear});if(structureEvents.length>60)structureEvents.shift();if(sweepEvents.length>60)sweepEvents.shift();
+  const flowPosition=(flow.poc!=null?(flow.poc-c.l)/rng:.5),act=volSma[i]!=null&&vol[i]>volSma[i]*actMult,buyVolRatio=(()=>{let bv=0,tv=0;for(let q=Math.max(0,i-2);q<=i;q++){const rr=Math.max(cs[q].h-cs[q].l,1e-12),vv=vol[q];bv+=vv*(cs[q].c-cs[q].l)/rr;tv+=vv}return tv?100*bv/tv:50})(),inst=institutionalTypes(act,cp,flow.delta,flowPosition,c.c<((Math.max(...cs.slice(Math.max(0,i-36),i+1).map(x=>x.h))+Math.min(...cs.slice(Math.max(0,i-36),i+1).map(x=>x.l)))/2),lastSweepLow>=i-10,lastSweepHigh>=i-10,c.c>((Math.max(...cs.slice(Math.max(0,i-36),i+1).map(x=>x.h))+Math.min(...cs.slice(Math.max(0,i-36),i+1).map(x=>x.l)))/2),lastSweepHigh>=i-10,st.trend,c.o,c.c,flow.deltaPct);
+  const bullFV=i>=2&&c.l>cs[i-2].h&&cs[i-1].c>cs[i-1].o&&(c.l-cs[i-2].h)>=atr*gapAtr,bearFV=i>=2&&c.h<cs[i-2].l&&cs[i-1].c<cs[i-1].o&&(cs[i-2].l-c.h)>=atr*gapAtr;
+  const bodyLo=Math.min(c.o,c.c),bodyHi=Math.max(c.o,c.c),prevBodyLo=Math.min(p.o,p.c),prevBodyHi=Math.max(p.o,p.c),bullVI=i>=1&&bodyLo>prevBodyHi&&c.l<=p.h&&(bodyLo-prevBodyHi)>=atr*gapAtr,bearVI=i>=1&&bodyHi<prevBodyLo&&c.h>=p.l&&(prevBodyLo-bodyHi)>=atr*gapAtr;
+  if(bullFV)fvgs.unshift({dir:1,top:c.l,bot:cs[i-2].h,bar:i,active:true,ratio:buyVolRatio});if(bearFV)fvgs.unshift({dir:-1,top:cs[i-2].l,bot:c.h,bar:i,active:true,ratio:100-buyVolRatio});if(bullVI)vigs.unshift({dir:1,top:bodyLo,bot:prevBodyHi,bar:i,active:true});if(bearVI)vigs.unshift({dir:-1,top:prevBodyLo,bot:bodyHi,bar:i,active:true});
+  // OB is created only by external structure break; source candle is the extreme between break origin and current bar.
+  if((st.bull||st.bear)&&st.levelBar!=null&&i>2){let idx=st.levelBar,extreme=st.bull?Infinity:-Infinity;for(let j=Math.max(Math.max(0,i-250),st.levelBar);j<=i;j++){const v=st.bull?cs[j].l:cs[j].h;if((st.bull&&v<extreme)||(!st.bull&&v>extreme)){extreme=v;idx=j}}const zc=cs[idx],top=zc.h,bot=zc.l,mid=(top+bot)/2,rangeHi=Math.max(...cs.slice(Math.max(0,i-36),i+1).map(x=>x.h)),rangeLo=Math.min(...cs.slice(Math.max(0,i-36),i+1).map(x=>x.l)),eq=st.hi!=null&&st.lo!=null?(st.hi+st.lo)/2:(rangeHi+rangeLo)/2,dir=st.bull?1:-1,overlap=[...vigs,...fvgs].some(z=>z.active&&z.dir===dir&&z.top>=bot&&z.bot<=top),score=(st.chochBull||st.chochBear?1:0)+(volSma[idx]!=null&&vol[idx]>volSma[idx]*1.2?1:0)+(overlap?1:0)+((dir===1?mid<eq:mid>eq)?1:0)+((dir===1?i-lastSweepLow:i-lastSweepHigh)<=60?1:0);obs.unshift({dir,top,bot,bar:i,sourceBar:idx,score,active:true,st:0})}
+  for(const z of obs){if(!z.active)continue;if(i-z.bar>180){z.active=false;continue}const hit=c.l<=z.top&&c.h>=z.bot;if(z.dir===1&&c.c<z.bot){z.active=false;if(strongBearCandle)breakers.unshift({...z,dir:-1,active:true,bar:i,st:0})}else if(z.dir===-1&&c.c>z.top){z.active=false;if(strongBullCandle)breakers.unshift({...z,dir:1,active:true,bar:i,st:0})}}
+  for(const z of [...fvgs,...vigs])if(z.active&&((z.dir===1&&c.c<z.bot)||(z.dir===-1&&c.c>z.top)))z.active=false;
+  for(const z of breakers){if(!z.active)continue;if(i-z.bar>40||(z.dir===1&&c.c<z.bot)||(z.dir===-1&&c.c>z.top))z.active=false;else if(z.dir===1&&c.l<=z.top)z.st=1;else if(z.dir===-1&&c.h>=z.bot)z.st=1}
+  obs=obs.slice(0,30);breakers=breakers.slice(0,20);fvgs=fvgs.slice(0,40);vigs=vigs.slice(0,30);
+  const activeObs=obs.filter(z=>z.active&&z.score>=3),activeBullOB=activeObs.filter(z=>z.dir===1),activeBearOB=activeObs.filter(z=>z.dir===-1),activeBullFvg=fvgs.filter(z=>z.active&&z.dir===1),activeBearFvg=fvgs.filter(z=>z.active&&z.dir===-1),activeBullBB=breakers.filter(z=>z.active&&z.dir===1),activeBearBB=breakers.filter(z=>z.active&&z.dir===-1);
+  const chooseZone=(arr)=>arr.sort((a,b)=>{const ta=c.l<=a.top&&c.h>=a.bot,tb=c.l<=b.top&&c.h>=b.bot;return Number(tb)-Number(ta)||b.score-a.score||b.bar-a.bar||Math.abs(c.c-(a.top+a.bot)/2)-Math.abs(c.c-(b.top+b.bot)/2)})[0]||null;
+  const buyOB=chooseZone(activeBullOB),sellOB=chooseZone(activeBearOB),poiBuy=!!buyOB&&i>buyOB.bar+1&&p.c>buyOB.top&&c.l<=buyOB.top+atr*.15&&c.h>=buyOB.bot-atr*.15&&c.c>c.o&&cp>=.62&&loW>=profileCfg.wick,poiSell=!!sellOB&&i>sellOB.bar+1&&p.c<sellOB.bot&&c.h>=sellOB.bot-atr*.15&&c.l<=sellOB.top+atr*.15&&c.c<c.o&&cp<=.38&&upW>=profileCfg.wick;
+  const fvgBuy=activeBullFvg.some(z=>i>z.bar&&i-z.bar<=18&&c.l<=z.top&&c.h>=z.bot&&c.c>z.bot&&c.c>c.o),fvgSell=activeBearFvg.some(z=>i>z.bar&&i-z.bar<=18&&c.h>=z.bot&&c.l<=z.top&&c.c<z.top&&c.c<c.o),fvgBuyConfirmed=fvgBuy&&(bullConfirm||(c.c>c.o&&cp>=.55&&c.c>=p.c))&&((!htfBear&&!htf60Bear&&(st.trend===1||it.trend===1))||bosUp||chochUp||iBosUp||it.bull),fvgSellConfirmed=fvgSell&&(bearConfirm||(c.c<c.o&&cp<=.45&&c.c<=p.c))&&((!htfBull&&!htf60Bull&&(st.trend===-1||it.trend===-1))||bosDn||chochDn||iBosDn||it.bear),poiBuyConfirmed=poiBuy&&(bosUp||chochUp||iBosUp||it.bull)&&bullConfirm,poiSellConfirmed=poiSell&&(bosDn||chochDn||iBosDn||it.bear)&&bearConfirm,bbBuy=activeBullBB.some(z=>z.st===1&&p.c>z.top&&c.l<=z.top&&c.c>=(z.top+z.bot)/2&&c.c>c.o),bbSell=activeBearBB.some(z=>z.st===1&&p.c<z.bot&&c.h>=z.bot&&c.c<=(z.top+z.bot)/2&&c.c<c.o);
+  const rLook=36,prevSlice=cs.slice(Math.max(0,i-rLook),i),rangeHi=prevSlice.length?Math.max(...prevSlice.map(x=>x.h)):c.h,rangeLo=prevSlice.length?Math.min(...prevSlice.map(x=>x.l)):c.l,rangeSize=rangeHi-rangeLo,mid=(rangeHi+rangeLo)/2,travel=cs.slice(Math.max(1,i-36+1),i+1).reduce((s,x,j,a)=>s+Math.abs(x.c-(cs[Math.max(0,i-36+1)+j-1]?.c??x.c)),0),eff=i>=36&&travel?Math.abs(c.c-cs[i-36].c)/travel:NaN,slope=i>=8?(ema34-ind.ema34[i-8])/atr:NaN,bbVals=cs.slice(Math.max(0,i-19),i+1).map(x=>x.c),bbMean=bbVals.reduce((a,b)=>a+b,0)/bbVals.length,bbDev=Math.sqrt(bbVals.reduce((a,b)=>a+(b-bbMean)**2,0)/bbVals.length),bbWidthPct=bbVals.length>=20&&bbMean?(bbDev*4/bbMean)*100:NaN,compressed=adx<24&&bbWidthPct<1.35&&Math.abs(slope)<1.1,structConflict=st.trend===0&&it.trend===0||st.trend!==0&&it.trend!==0&&st.trend!==it.trend,rangeVotes=(adx<23?1:0)+(eff<.32?1:0)+((compressed||structConflict)?1:0),isRange=rangeSize>atr*2.5&&c.c>=rangeLo&&c.c<=rangeHi&&rangeVotes>=2,buyOuter=rangeLo+rangeSize*.45,sellOuter=rangeHi-rangeSize*.45,sBuyOuter=rangeLo+rangeSize*.40,sSellOuter=rangeHi-rangeSize*.40,buyEdge=rangeSize>atr*2.5&&c.l<=rangeLo+rangeSize*.18,sellEdge=rangeSize>atr*2.5&&c.h>=rangeHi-rangeSize*.18,rangeBuy=buyEdge&&c.c>rangeLo&&bull&&loW>=profileCfg.wick,rangeSell=sellEdge&&c.c<rangeHi&&bear&&upW>=profileCfg.wick;
+  // FIX6.35 Edge-to-Edge: independent arm -> reclaim PRE -> later confirmation, captured range is frozen.
+  let edge2edgeBuyPath=false,edge2edgeSellPath=false,edge2edgeBuyStop=null,edge2edgeSellStop=null,edge2edgeBuyTarget=null,edge2edgeSellTarget=null,edge2edgeBuyOpposite=null,edge2edgeSellOpposite=null;const e2eValid=rangeSize>atr*2.5&&isRange,edgePct=.12,edgeWindow=12,edgeBreak=.12,dualEdgeTouch=c.l<=rangeLo+rangeSize*edgePct&&c.h>=rangeHi-rangeSize*edgePct;
+  if(e2eValid&&!dualEdgeTouch&&!rangeArm.buy&&c.l<=rangeLo+rangeSize*edgePct)rangeArm.buy={bar:i,boundary:rangeLo,opposite:rangeHi,eq:mid,extreme:c.l,preBar:null,preSeen:false};
+  if(e2eValid&&!dualEdgeTouch&&!rangeArm.sell&&c.h>=rangeHi-rangeSize*edgePct)rangeArm.sell={bar:i,boundary:rangeHi,opposite:rangeLo,eq:mid,extreme:c.h,preBar:null,preSeen:false};
+  if(rangeArm.buy){const a=rangeArm.buy;a.extreme=Math.min(a.extreme,c.l);const age=i-a.bar,invalid=c.c<a.boundary-atr*edgeBreak||c.c>=a.eq||age>edgeWindow;if(!invalid&&age>0&&!a.preSeen&&c.c>a.boundary&&c.c>c.o){a.preSeen=true;a.preBar=i}const win=a.preBar!=null&&i>a.preBar&&i-a.preBar<=3;edge2edgeBuyPath=!invalid&&a.preSeen&&win&&c.c>a.boundary&&c.c<a.eq&&(bull&&loW>=profileCfg.wick||sweepL||(c.c>c.o&&cp>=.62&&c.c>p.c&&loW>=profileCfg.wick));if(edge2edgeBuyPath){edge2edgeBuyStop=a.extreme-atr*.2;edge2edgeBuyTarget=a.eq;edge2edgeBuyOpposite=a.opposite;}if(invalid||edge2edgeBuyPath)rangeArm.buy=null}
+  if(rangeArm.sell){const a=rangeArm.sell;a.extreme=Math.max(a.extreme,c.h);const age=i-a.bar,invalid=c.c>a.boundary+atr*edgeBreak||c.c<=a.eq||age>edgeWindow;if(!invalid&&age>0&&!a.preSeen&&c.c<a.boundary&&c.c<c.o){a.preSeen=true;a.preBar=i}const win=a.preBar!=null&&i>a.preBar&&i-a.preBar<=3;edge2edgeSellPath=!invalid&&a.preSeen&&win&&c.c<a.boundary&&c.c>a.eq&&(bear&&upW>=profileCfg.wick||sweepH||(c.c<c.o&&cp<=.38&&c.c<p.c&&upW>=profileCfg.wick));if(edge2edgeSellPath){edge2edgeSellStop=a.extreme+atr*.2;edge2edgeSellTarget=a.eq;edge2edgeSellOpposite=a.opposite;}if(invalid||edge2edgeSellPath)rangeArm.sell=null}
+  const localTrend=ema20>ema50?1:ema20<ema50?-1:0,signedSlope=slope,bullVotes=(pdi>mdi?1:0)+(c.c>ema34?1:0)+(signedSlope>=.25?1:0)+((st.trend===1||it.trend===1)?1:0),bearVotes=(mdi>pdi?1:0)+(c.c<ema34?1:0)+(signedSlope<=-.25?1:0)+((st.trend===-1||it.trend===-1)?1:0),strongBull=adx>=22&&bullVotes>=3&&signedSlope>0,strongBear=adx>=22&&bearVotes>=3&&signedSlope<0,bullDrive=bullVotes>=3&&signedSlope>0&&ema20>ema34&&c.c>ema20,strongTrend=strongBull||strongBear,microBull=c.c>p.h||(i>=2&&c.c>Math.max(cs[i-2].h,cs[Math.max(0,i-3)].h)),microBear=c.c<p.l||(i>=2&&c.c<Math.min(cs[i-2].l,cs[Math.max(0,i-3)].l));
+  const impulseBull=st.trend===1&&st.lo!=null&&st.hi!=null&&i-Math.max(st.loBar,st.hiBar)<=45&&st.loBar<st.hiBar&&st.hi-st.lo>=atr*1.5,impulseBear=st.trend===-1&&st.lo!=null&&st.hi!=null&&i-Math.max(st.loBar,st.hiBar)<=45&&st.hiBar<st.loBar&&st.hi-st.lo>=atr*1.5,oteBuyTouch=impulseBull&&c.l<=st.hi-(st.hi-st.lo)*.618&&c.h>=st.hi-(st.hi-st.lo)*.786,oteSellTouch=impulseBear&&c.h>=st.lo+(st.hi-st.lo)*.618&&c.l<=st.lo+(st.hi-st.lo)*.786;
+  if(oteBuyTouch&&!ote.buy)ote.buy={bar:i,hiBar:st.hiBar,loBar:st.loBar,top:st.hi-(st.hi-st.lo)*.618,bot:st.hi-(st.hi-st.lo)*.786};if(oteSellTouch&&!ote.sell)ote.sell={bar:i,hiBar:st.hiBar,loBar:st.loBar,top:st.lo+(st.hi-st.lo)*.786,bot:st.lo+(st.hi-st.lo)*.618};
+  for(const side of ['buy','sell'])if(ote[side]&&(i-ote[side].bar>10||(side==='buy'?!impulseBull:!impulseBear)||ote[side].hiBar!==st.hiBar||ote[side].loBar!==st.loBar))ote[side]=null;
+  const oteBuyOK=!!ote.buy&&((chochUp||bosUp||iBosUp||it.bull)&&bull&&c.c>ote.buy.top),oteSellOK=!!ote.sell&&((chochDn||bosDn||iBosDn||it.bear)&&bear&&c.c<ote.sell.bot);
+  const trendPullBuy=localTrend===1&&c.c>ema20&&c.l<=ema20+atr*.25&&bull,trendPullSell=localTrend===-1&&c.c<ema20&&c.h>=ema20-atr*.25&&bear,trendImpBuy=localTrend===1&&bull&&c.c-p.c>=atr*.35&&pdi>mdi,trendImpSell=localTrend===-1&&bear&&p.c-c.c>=atr*.35&&mdi>pdi;
+  const orderBuy=flow.delta>0&&flow.deltaPct>.05,orderSell=flow.delta<0&&flow.deltaPct<-.05;
+  for(const side of ['buy','sell'])if(sPoiLock[side]){const z=sPoiLock[side],expired=i-z.bar>24,invalid=side==='buy'?(c.c<z.level-atr*.1||c.l<=z.level-atr*.1):(c.c>z.level+atr*.1||c.h>=z.level+atr*.1);if(expired||invalid)sPoiLock[side]=null}
+  // Strategy setup states: setup -> retest/impulse/confirmation. S1-S4 keep independent timers and cooldowns.
+  const poiConflBuy=!!buyOB&&buyOB.score>=3,poiConflSell=!!sellOB&&sellOB.score>=3,s1BullReject=c.c>c.o&&Math.abs(c.c-c.o)>=atr*.20&&body>=.42&&cp>=.72,s1BearReject=c.c<c.o&&Math.abs(c.c-c.o)>=atr*.20&&body>=.42&&cp<=.28,s2BullReact=c.c>c.o&&cp>=.55&&(act||flow.delta<0),s2BearReact=c.c<c.o&&cp<=.45&&(act||flow.delta>0);
+  if(!sSetup.buy.S1&&poiConflBuy&&s1BullReject&&c.l<=buyOB.top&&c.c>(buyOB.top+buyOB.bot)/2)sSetup.buy.S1={bar:i,top:buyOB.top,bot:buyOB.bot,price:c.c};if(!sSetup.sell.S1&&poiConflSell&&s1BearReject&&c.h>=sellOB.bot&&c.c<(sellOB.top+sellOB.bot)/2)sSetup.sell.S1={bar:i,top:sellOB.top,bot:sellOB.bot,price:c.c};
+  if(!sSetup.buy.S2&&poiConflBuy&&s2BullReact&&c.l<=buyOB.top&&c.c>(buyOB.top+buyOB.bot)/2)sSetup.buy.S2={bar:i,top:buyOB.top,bot:buyOB.bot,price:c.c,flow:cp>=.55&&flow.delta<0};if(!sSetup.sell.S2&&poiConflSell&&s2BearReact&&c.h>=sellOB.bot&&c.c<(sellOB.top+sellOB.bot)/2)sSetup.sell.S2={bar:i,top:sellOB.top,bot:sellOB.bot,price:c.c,flow:cp<=.45&&flow.delta>0};
+  const gzBuyTop=st.hi-(st.hi-st.lo)*.618,gzBuyBot=st.hi-(st.hi-st.lo)*.786,gzSellTop=st.lo+(st.hi-st.lo)*.786,gzSellBot=st.lo+(st.hi-st.lo)*.618,gzConflBuy=activeBullFvg.some(z=>z.ratio>=50&&z.top>gzBuyBot&&z.bot<gzBuyTop)||vigs.some(z=>z.active&&z.dir===1&&z.top>gzBuyBot&&z.bot<gzBuyTop),gzConflSell=activeBearFvg.some(z=>z.ratio>=50&&z.top>gzSellBot&&z.bot<gzSellTop)||vigs.some(z=>z.active&&z.dir===-1&&z.top>gzSellBot&&z.bot<gzSellTop);if(!sSetup.buy.S3&&st.hi!=null&&st.lo!=null&&c.l<=gzBuyTop&&c.h>=gzBuyBot&&gzConflBuy)sSetup.buy.S3={bar:i,top:gzBuyTop,bot:gzBuyBot,price:c.c};if(!sSetup.sell.S3&&st.hi!=null&&st.lo!=null&&c.h>=gzSellBot&&c.l<=gzSellTop&&gzConflSell)sSetup.sell.S3={bar:i,top:gzSellTop,bot:gzSellBot,price:c.c};
+  const newBBBuy=activeBullBB.find(z=>z.st===1),newBBSell=activeBearBB.find(z=>z.st===1);if(!sSetup.buy.S4&&newBBBuy&&i>newBBBuy.bar&&i-newBBBuy.bar<=24&&p.c>newBBBuy.top&&c.l<=newBBBuy.top&&c.c>(newBBBuy.top+newBBBuy.bot)/2&&bull)sSetup.buy.S4={bar:i,top:newBBBuy.top,bot:newBBBuy.bot,price:c.c};if(!sSetup.sell.S4&&newBBSell&&i>newBBSell.bar&&i-newBBSell.bar<=24&&p.c<newBBSell.bot&&c.h>=newBBSell.bot&&c.c<(newBBSell.top+newBBSell.bot)/2&&bear)sSetup.sell.S4={bar:i,top:newBBSell.top,bot:newBBSell.bot,price:c.c};
+  const sCandidates=[];for(const side of ['buy','sell'])for(const id of ['S1','S2','S3','S4']){const q=sSetup[side][id];if(!q)continue;const age=i-q.bar,dir=side==='buy'?1:-1,valid=age>0&&age<=(id==='S3'?8:id==='S4'?5:18)&&(dir===1?c.c>=q.bot-atr*.1:c.c<=q.top+atr*.1),tol=atr*.15,retest=valid&&(dir===1?c.l<=q.top+tol&&c.c>(q.top+q.bot)/2&&c.c>c.o:c.h>=q.bot-tol&&c.c<(q.top+q.bot)/2&&c.c<c.o),impulse=valid&&age<=2&&(dir===1?strongBullCandle&&c.c>q.top&&c.c>p.h:strongBearCandle&&c.c<q.bot&&c.c<p.l),confirm=id==='S3'?valid&&(dir===1?strongBullCandle&&c.c>q.top:strongBearCandle&&c.c<q.bot):id==='S4'?valid&&age<=5&&(dir===1?strongBullCandle&&c.c>q.top&&c.c>p.h:strongBearCandle&&c.c<q.bot&&c.c<p.l):false,sig=(id==='S3'||id==='S4')?confirm:(retest||impulse),lock=sPoiLock[side],locked=!!lock&&i-lock.bar<=24&&q.top>=lock.bot-atr*.2&&q.bot<=lock.top+atr*.2,dist=Math.abs(c.c-(q.price??c.c))/atr,distLimit=id==='S3'?1.5:1.35,distOK=dist<=distLimit||impulse&&((dir===1?strongBull:strongBear)&&(dir===1?c.c>ema20:c.c<ema20)),locationOK=dir===1?(st.hi==null||st.lo==null||c.c<=(st.hi+st.lo)/2||st.trend===1&&it.trend===1):(st.hi==null||st.lo==null||c.c>=(st.hi+st.lo)/2||st.trend===-1&&it.trend===-1),impulseLocationOK=impulse&&(dir===1?strongBull&&pdi>mdi&&c.c>ema20&&!htf60Bear:strongBear&&mdi>pdi&&c.c<ema20&&!htf60Bull),microOK=impulse||(dir===1?microBull:microBear),sRangeOK=!isRange||(dir===1?(q.top+q.bot)/2<=sBuyOuter:(q.top+q.bot)/2>=sSellOuter);
+    if(sig&&i-lastS[side][id]>=12&&!locked&&distOK&&(locationOK||impulseLocationOK)&&(id==='S1'||id==='S2'?microOK:dir===1?microBull:microBear)&&sRangeOK&&(dir===1?(!strongBear||(sweepL&&chochUp&&bull&&c.c>ema20&&iBosUp)):(!strongBull&&!bullDrive||(sweepH&&chochDn&&bear&&c.c<ema20&&iBosDn)))){const stop=dir===1?q.bot-atr*.1:q.top+atr*.1,risk=Math.abs(c.c-stop),target=dir===1?st.hi:st.lo,reward=target!=null?dir*(target-c.c):-1,cap=dir===1?(htfBull&&!htf60Bear&&st.trend===1&&it.trend===1?2.2:(sweepL&&chochUp?1.8:htfBull&&!htf60Bear?1.5:1.2)):(htfBear&&!htf60Bull&&st.trend===-1&&it.trend===-1?2.2:(sweepH&&chochDn?1.8:htfBear&&!htf60Bull?1.5:1.2));const riskOK=risk>atr*.05&&risk/atr<=cap&&reward>0&&reward/risk>=1.2,trendOK=dir===1?(!strongBear||(sweepL&&chochUp&&bull&&c.c>ema20&&iBosUp)):(!strongBull||(sweepH&&chochDn&&bear&&c.c<ema20&&iBosDn));if(riskOK&&trendOK){const micro=dir===1?(iBosUp||it.trend===1):(iBosDn||it.trend===-1),aligned=dir===1?(htfBull&&!htf60Bear&&st.trend===1):(htfBear&&!htf60Bull&&st.trend===-1),extra=id==='S2'?(q.flow||(dir===1?orderBuy:orderSell)):id==='S3'?(dir===1?gzConflBuy:gzConflSell):false,rank=(impulse?14:8)+(micro?8:0)+(aligned?10:0)+(id==='S1'?6:0)+(extra?9:0)+Math.min(14,reward/risk*6)-risk/atr*3+(id==='S3'?1:id==='S4'?2:0);sCandidates.push({id,side,dir,setup:q,stop,target,risk,rr:reward/risk,rank,impulse})}}
+    q.stage=sCandidates.some(x=>x.id===id&&x.side===side)?'READY':sig?'CONFIRM':confirm?'CONFIRM':retest?'RETEST':impulse?'IMPULSE':age===0?'SETUP':'WAITING';q.age=age;q.dir=dir;q.lastBar=i;
+    if(age>0&&!valid)sSetup[side][id]=null}
+  const sset=[];let selectedSCandidates=['buy','sell'].map(side=>sCandidates.filter(x=>x.side===side).sort((a,b)=>b.rank-a.rank)[0]).filter(Boolean);if(selectedSCandidates.length===2){const b=selectedSCandidates.find(x=>x.side==='buy'),ss=selectedSCandidates.find(x=>x.side==='sell'),buyWins=b.rank>ss.rank||(b.rank===ss.rank&&(pdi>mdi||pdi===mdi&&c.c>=c.o));selectedSCandidates=[buyWins?b:ss]}for(const cand of selectedSCandidates){const {id,side,dir,setup:q,stop,target,risk,rr,rank}=cand;sset.push({id,side,dir,setup:q,rank});const t1=target,t2=dir===1?Math.max(target,target+Math.max(risk*.8,atr*.3)):Math.min(target,target-Math.max(risk*.8,atr*.3));sSignals.push({bar:i,engine:id,dir,entry:c.c,stop,t1,t2,score:Math.round(rank)});sLedger.push({engine:id,dir,entry:c.c,stop,initialStop:stop,t1,t2,open:true,t1hit:false,bar:i,score:Math.round(rank),source:'S1-S4',mfe:0,mae:0});lastS[side][id]=i;sPoiLock[side]={top:q.top,bot:q.bot,bar:i,level:dir===1?q.bot:q.top};sSetup[side][id]=null}
+  // FINAL routes remain separately identifiable. Route 1..7 plus the two continuation paths.
+  const routes=[{id:1,name:'Fast Structure / Candle',buy:(bosUp||chochUp||iBosUp)&&bull,sell:(bosDn||chochDn||iBosDn)&&bear},{id:2,name:'FVG / OB Retest',buy:poiBuyConfirmed||fvgBuyConfirmed,sell:poiSellConfirmed||fvgSellConfirmed},{id:3,name:'Liquidity Sweep Reversal',buy:i-lastSweepLow<=6&&c.c>c.o&&cp>=.60&&(c.c>p.h||bullConfirm),sell:i-lastSweepHigh<=6&&c.c<c.o&&cp<=.40&&(c.c<p.l||bearConfirm)},{id:4,name:'OTE مستقل',buy:oteBuyOK,sell:oteSellOK},{id:5,name:'Breaker مستقل',buy:bbBuy,sell:bbSell},{id:6,name:'PD Outer Edge',buy:buyEdge&&bull&&loW>=profileCfg.wick,sell:sellEdge&&bear&&upW>=profileCfg.wick},{id:7,name:'Range Edge-to-Edge',buy:edge2edgeBuyPath,sell:edge2edgeSellPath},{id:8,name:'Trend Impulse',buy:trendImpBuy,sell:trendImpSell},{id:9,name:'Trend Pullback',buy:trendPullBuy,sell:trendPullSell}];
+  // Fast structure route uses a bounded structure/candle pairing window, not same-bar coincidence.
+  if(bosUp||chochUp||iBosUp||it.bull)fast.buy.st=i;if(bosDn||chochDn||iBosDn||it.bear)fast.sell.st=i;if(bullConfirm)fast.buy.cb=i;if(bearConfirm)fast.sell.cb=i;for(const side of ['buy','sell']){if(fast[side].st!=null&&i-fast[side].st>4)fast[side].st=null;if(fast[side].cb!=null&&i-fast[side].cb>4)fast[side].cb=null}routes[0].buy=!!fast.buy.st&&!!fast.buy.cb&&Math.abs(fast.buy.st-fast.buy.cb)<=4;routes[0].sell=!!fast.sell.st&&!!fast.sell.cb&&Math.abs(fast.sell.st-fast.sell.cb)<=4;
+  // Independent OTE + Breaker confirmation latches. Retest touch arms; structure/candle may confirm on adjacent bars.
+  if(ote.buy&&((chochUp||bosUp||iBosUp)))ote.buy.struct=i;if(ote.buy&&bullConfirm)ote.buy.candle=i;if(ote.sell&&((chochDn||bosDn||iBosDn)))ote.sell.struct=i;if(ote.sell&&bearConfirm)ote.sell.candle=i;routes[3].buy=!!ote.buy&&ote.buy.struct!=null&&ote.buy.candle!=null&&i-ote.buy.struct<=10&&i-ote.buy.candle<=10&&c.c>ote.buy.top;routes[3].sell=!!ote.sell&&ote.sell.struct!=null&&ote.sell.candle!=null&&i-ote.sell.struct<=10&&i-ote.sell.candle<=10&&c.c<ote.sell.bot;if(routes[3].buy)ote.buy=null;if(routes[3].sell)ote.sell=null;
+  if(bbBuy&&!breakerArm.buy)breakerArm.buy={bar:i,top:activeBullBB[0]?.top,bot:activeBullBB[0]?.bot,structBar:null,candleBar:null};if(bbSell&&!breakerArm.sell)breakerArm.sell={bar:i,top:activeBearBB[0]?.top,bot:activeBearBB[0]?.bot,structBar:null,candleBar:null};for(const side of ['buy','sell'])if(breakerArm[side]){const a=breakerArm[side];if(i-a.bar>10)breakerArm[side]=null;else{if(side==='buy'&&(chochUp||(st.trend===1&&htfBull&&st.bull)))a.structBar=i;if(side==='sell'&&(chochDn||(st.trend===-1&&htfBear&&st.bear)))a.structBar=i;if(side==='buy'&&bullConfirm)a.candleBar=i;if(side==='sell'&&bearConfirm)a.candleBar=i}}routes[4].buy=!!breakerArm.buy&&breakerArm.buy.structBar!=null&&breakerArm.buy.candleBar!=null&&i-breakerArm.buy.structBar<=10&&i-breakerArm.buy.candleBar<=10;routes[4].sell=!!breakerArm.sell&&breakerArm.sell.structBar!=null&&breakerArm.sell.candleBar!=null&&i-breakerArm.sell.structBar<=10&&i-breakerArm.sell.candleBar<=10;if(routes[4].buy){routes[4].stopBuy=breakerArm.buy?.bot!=null?breakerArm.buy.bot-atr*.2:null;breakerArm.buy=null}if(routes[4].sell){routes[4].stopSell=breakerArm.sell?.top!=null?breakerArm.sell.top+atr*.2:null;breakerArm.sell=null}
+  // PD outer edge: touch arms a short reaction window, then a later reclaim + reversal confirmation.
+  if(st.lo!=null&&c.l<=st.lo+atr*.2&&!pdEdge.buy)pdEdge.buy={bar:i,level:st.lo,extreme:c.l,preBar:null};if(st.hi!=null&&c.h>=st.hi-atr*.2&&!pdEdge.sell)pdEdge.sell={bar:i,level:st.hi,extreme:c.h,preBar:null};if(pdEdge.buy){pdEdge.buy.extreme=Math.min(pdEdge.buy.extreme,c.l);const age=i-pdEdge.buy.bar;if(age>10||c.c<pdEdge.buy.level-atr*.2)pdEdge.buy=null;else if(age>0&&pdEdge.buy.preBar==null&&c.c>pdEdge.buy.level&&c.c>c.o)pdEdge.buy.preBar=i}if(pdEdge.sell){pdEdge.sell.extreme=Math.max(pdEdge.sell.extreme,c.h);const age=i-pdEdge.sell.bar;if(age>10||c.c>pdEdge.sell.level+atr*.2)pdEdge.sell=null;else if(age>0&&pdEdge.sell.preBar==null&&c.c<pdEdge.sell.level&&c.c<c.o)pdEdge.sell.preBar=i}routes[5].buy=!!pdEdge.buy&&pdEdge.buy.preBar!=null&&i>=pdEdge.buy.preBar&&i-pdEdge.buy.preBar<=3&&(bullConfirm||chochUp||bosUp||iBosUp||it.bull);routes[5].sell=!!pdEdge.sell&&pdEdge.sell.preBar!=null&&i>=pdEdge.sell.preBar&&i-pdEdge.sell.preBar<=3&&(bearConfirm||chochDn||bosDn||iBosDn||it.bear);if(routes[5].buy){routes[5].stopBuy=pdEdge.buy.extreme-atr*.2;pdEdge.buy=null}if(routes[5].sell){routes[5].stopSell=pdEdge.sell.extreme+atr*.2;pdEdge.sell=null}
+  let raw=[];for(const r of routes){if(r.buy)raw.push({...r,dir:1});if(r.sell)raw.push({...r,dir:-1})}for(const side of ['buy','sell']){const direct=raw.find(x=>x.dir===(side==='buy'?1:-1));if(direct){pre[side]={bar:i,expires:i+5,dir:side==='buy'?1:-1};if(!retestWatch[side]||i-retestWatch[side].bar>18)retestWatch[side]={bar:i,dir:direct.dir,route:{...direct},level:side==='buy'?(buyOB?(buyOB.top+buyOB.bot)/2:ema20):(sellOB?(sellOB.top+sellOB.bot)/2:ema20),top:side==='buy'?(buyOB?.top??ema20+atr*.15):(sellOB?.top??ema20+atr*.15),bot:side==='buy'?(buyOB?.bot??ema20-atr*.15):(sellOB?.bot??ema20-atr*.15)}}}for(const side of ['buy','sell']){const w=retestWatch[side];if(w&&i>w.bar&&i-w.bar<=18&&!raw.some(x=>x.dir===w.dir)){const recovered=side==='buy'?c.l<=w.level+atr*.15&&c.c>w.level&&bull&&(chochUp||bosUp||iBosUp||st.trend===1):c.h>=w.level-atr*.15&&c.c<w.level&&bear&&(chochDn||bosDn||iBosDn||st.trend===-1);if(recovered)raw.push({...w.route,name:'PRE Retest Recovery',dir:w.dir,recovery:true})}if(w&&i-w.bar>18)retestWatch[side]=null}
+  const scored=raw.filter(x=>{const d=x.dir,recentSweep=d===1?i-lastSweepLow<=6:i-lastSweepHigh<=6,against=d===1?(htfBear||htf60Bear):(htfBull||htf60Bull),rev=d===1?(recentSweep&&chochUp&&bullConfirm&&c.c>ema20):(recentSweep&&chochDn&&bearConfirm&&c.c<ema20),poi=d===1?poiBuy:poiSell,routeCounter=d===1?(x.id===3?rev:x.id===2?((fvgBuy&&bullConfirm&&(chochUp||bosUp||iBosUp||it.bull)&&c.c>ema20)||(poiBuy&&chochUp&&bullConfirm&&c.c>ema20)):x.id===4||x.id===5?(chochUp&&bullConfirm&&c.c>ema20):x.id===6?(bullConfirm&&c.c>ema20):false):(x.id===3?rev:x.id===2?((fvgSell&&bearConfirm&&(chochDn||bosDn||iBosDn||it.bear)&&c.c<ema20)||(poiSell&&chochDn&&bearConfirm&&c.c<ema20)):x.id===4||x.id===5?(chochDn&&bearConfirm&&c.c<ema20):x.id===6?(bearConfirm&&c.c<ema20):false),rangeOK=!isRange||(d===1?rangeBuy:rangeSell)||x.id===7,ext=Math.abs(c.c-ema20)/atr,continuation=(d===1?strongBull:strongBear)&&(d===1?pdi>mdi:mdi>pdi)&&x.id>=8,poiCounter=poi&&(d===1?bull&&c.c>ema20&&(pdi>mdi||st.trend===1||it.trend===1)&&!htf60Bear:bear&&c.c<ema20&&(mdi>pdi||st.trend===-1||it.trend===-1)&&!htf60Bull);return (!against||routeCounter||poiCounter||continuation)&&rangeOK&&(!strongTrend||d===localTrend||routeCounter||poiCounter||continuation)&&ext<=1.8&&i-lastP[d===1?'buy':'sell']>profileCfg.cooldown}).map(x=>{const d=x.dir,side=d===1?'buy':'sell',poi=d===1?poiBuy:poiSell,align=localTrend===d,htf=d===1?htfBull&& !htf60Bear:htfBear&&!htf60Bull,loc=d===1?c.c<=mid:c.c>=mid,structure=d===1?(bosUp||chochUp||iBosUp):(bosDn||chochDn||iBosDn),sweep=d===1?sweepL:sweepH,flowOK=d===1?orderBuy:orderSell;let score=30+(structure?15:0)+(align?10:0)+(htf?10:0)+(loc?6:0)+(flowOK?8:0)+(sweep?12:0)+(adx>18?5:0)+(x.id===7?4:0)+(poi?5:0);return {...x,score}}).sort((a,b)=>b.score-a.score);
+  const chosen=scored[0]||null;let decision=null,blockedReason='';if(chosen){const d=chosen.dir,side=d===1?'buy':'sell',dl=daily[i],entry=c.c,look=cs.slice(Math.max(0,i-11),i+1),prev6=cs.slice(Math.max(0,i-6),i),fallbackStop=d===1?Math.min(...look.map(x=>x.l))-atr*.2:Math.max(...look.map(x=>x.h))+atr*.2,contStop=d===1?(prev6.length?Math.min(...prev6.map(x=>x.l)):fallbackStop)-atr*.2:(prev6.length?Math.max(...prev6.map(x=>x.h)):fallbackStop)+atr*.2,sweepRef=[...sweepEvents].reverse().find(z=>z.dir===d&&i-z.bar<=6),fvgRef=(d===1?activeBullFvg:activeBearFvg).filter(z=>i-z.bar<=18).sort((a,b)=>b.bar-a.bar)[0],routeStop=d===1?(chosen.id===2?(poiBuy&&buyOB?buyOB.bot-atr*.2:fvgRef?fvgRef.bot-atr*.2:fallbackStop):chosen.id===3?(Math.min(sweepRef?.price??c.l,c.l)-atr*.2):chosen.id===4?(st.lo!=null?st.lo-atr*.2:fallbackStop):chosen.id===5?(chosen.stopBuy??(activeBullBB.find(z=>z.st===1)?.bot!=null?activeBullBB.find(z=>z.st===1).bot-atr*.2:fallbackStop)):chosen.id===6?(chosen.stopBuy??fallbackStop):chosen.id===7?(edge2edgeBuyStop??fallbackStop):chosen.id>=8?contStop:fallbackStop):(chosen.id===2?(poiSell&&sellOB?sellOB.top+atr*.2:fvgRef?fvgRef.top+atr*.2:fallbackStop):chosen.id===3?(Math.max(sweepRef?.price??c.h,c.h)+atr*.2):chosen.id===4?(st.hi!=null?st.hi+atr*.2:fallbackStop):chosen.id===5?(chosen.stopSell??(activeBearBB.find(z=>z.st===1)?.top!=null?activeBearBB.find(z=>z.st===1).top+atr*.2:fallbackStop)):chosen.id===6?(chosen.stopSell??fallbackStop):chosen.id===7?(edge2edgeSellStop??fallbackStop):chosen.id>=8?contStop:fallbackStop),stop=routeStop,risk=Math.abs(entry-stop),targetLook=cs.slice(Math.max(0,i-30),i),hi30=targetLook.length?Math.max(...targetLook.map(x=>x.h)):null,lo30=targetLook.length?Math.min(...targetLook.map(x=>x.l)):null,targetCandidates=chosen.id===7?(d===1?[edge2edgeBuyTarget,edge2edgeBuyOpposite]:[edge2edgeSellTarget,edge2edgeSellOpposite]).filter(x=>Number.isFinite(x)&&d*(x-entry)>0):(d===1?[...(st.hi>entry?[st.hi]:[]),...(dl.pdh>entry?[dl.pdh]:[]),...(dl.cdh>entry?[dl.cdh]:[]),...(hi30!=null&&hi30>entry?[hi30]:[])].filter(x=>Number.isFinite(x)&&x>entry):[...(st.lo<entry?[st.lo]:[]),...(dl.pdl<entry?[dl.pdl]:[]),...(dl.cdl<entry?[dl.cdl]:[]),...(lo30!=null&&lo30<entry?[lo30]:[])].filter(x=>Number.isFinite(x)&&x<entry));targetCandidates.sort((a,b)=>d===1?a-b:b-a);const t1=targetCandidates[0]??null,secondCandidates=targetCandidates.filter(x=>t1!=null&&d*(x-t1)>0),t2=secondCandidates[0]??null,rr=t1!=null?Math.abs(t1-entry)/Math.max(risk,1e-12):0,ext=Math.abs(entry-ema20)/atr,reversal=d===1?(i-lastSweepLow<=6&&chochUp&&bullConfirm&&c.c>ema20):(i-lastSweepHigh<=6&&chochDn&&bearConfirm&&c.c<ema20),htfAligned=d===1?htfBull&&!htf60Bear:htfBear&&!htf60Bull;const continuationRisk=chosen.id>=8&&(d===1?strongBull&&pdi>mdi&&!htfBear&&!htf60Bear:strongBear&&mdi>pdi&&!htfBull&&!htf60Bull),baseCap=chosen.score>=85&&htfAligned&&reversal&&rr>=1.8?2.2:chosen.score>=70&&htfAligned&&reversal?1.8:chosen.score>=55&&reversal?1.5:1.2,cap=Math.min(2.2,Math.max(baseCap,continuationRisk?(chosen.score>=65?1.8:1.6):1.2)),rangeOK=!isRange||(d===1?(c.c<=buyOuter||rangeBuy||chosen.id===7):(c.c>=sellOuter||rangeSell||chosen.id===7)),late=ext>profileCfg.ext,poiCounter=(d===1?poiBuy&&bull&&c.c>ema20&&(pdi>mdi||st.trend===1||it.trend===1)&&!htf60Bear:poiSell&&bear&&c.c<ema20&&(mdi>pdi||st.trend===-1||it.trend===-1)&&!htf60Bull),continuationPermission=chosen.id>=8&&(d===1?strongBull&&pdi>mdi&&!htf60Bear:strongBear&&mdi>pdi&&!htf60Bull),routeCounter=d===1?(chosen.id===3?reversal:chosen.id===2?((fvgBuy&&bullConfirm&&(chochUp||bosUp||iBosUp||it.bull)&&c.c>ema20)||(poiBuy&&chochUp&&bullConfirm&&c.c>ema20)):chosen.id===4||chosen.id===5?(chochUp&&bullConfirm&&c.c>ema20):chosen.id===6?(bullConfirm&&c.c>ema20):false):(chosen.id===3?reversal:chosen.id===2?((fvgSell&&bearConfirm&&(chochDn||bosDn||iBosDn||it.bear)&&c.c<ema20)||(poiSell&&chochDn&&bearConfirm&&c.c<ema20)):chosen.id===4||chosen.id===5?(chochDn&&bearConfirm&&c.c<ema20):chosen.id===6?(bearConfirm&&c.c<ema20):false),central=!(d===1?(htfBear||htf60Bear):(htfBull||htf60Bull))||reversal||routeCounter||poiCounter||continuationPermission,tie=scored.length<2||scored[0].dir!==scored[1].dir||chosen.score>scored[1].score||(d===1?pdi>mdi&& (st.trend===1||it.trend===1||c.c>c.o):mdi>pdi&&(st.trend===-1||it.trend===-1||c.c<c.o));const commonPass=risk>atr*.05&&d*(entry-stop)>0&&risk/atr<=cap&&rr>=profileCfg.pRR&&t1!=null&&d*(t1-entry)>0&&(t2==null||d*(t2-t1)>0)&&(!late||chosen.recovery||chosen.id>=8&&strongTrend)&&rangeOK&&central&&tie&&i-lastP[side]>profileCfg.cooldown;const finalPass=chosen.score>=profileCfg.score&&rr>=profileCfg.rr&&commonPass&&(!late||chosen.id>=8&&strongTrend),pTradePass=chosen.score>=profileCfg.pScore&&commonPass;const pass=finalPass||pTradePass;if(pass){const source=finalPass&&!chosen.recovery?'FINAL':'P-TRADE';decision={...chosen,bar:i,entry,stop,t1,t2,rr,cap,source};if(source==='FINAL')finalSignals.push(decision);else pSignals.push(decision);pLedger.push({dir:d,entry,stop,initialStop:stop,t1,t2,open:true,t1hit:false,bar:i,route:chosen.id,score:chosen.score,source,mfe:0,mae:0});lastP[side]=i;pre[side]=null;retestWatch[side]=null}else blockedReason=[chosen.score<profileCfg.score?'امتیاز کمتر از ۵۲':risk/atr>cap?'ریسک ساختاری بیش از سقف تطبیقی':rr<1.2?'RR هدف نقدینگی کمتر از ۱٫۲':late?'ورود دیرهنگام':!rangeOK?'موقعیت نامعتبر در رنج':!central?'مغایرت HTF بدون تأیید برگشت':!tie?'تعارض جهت BUY/SELL':'گیت ریسک/ساختار'].join(' · ')}
+  const auditSide=(dir)=>{const side=dir===1?'buy':'sell',raw=routes.filter(x=>dir===1?x.buy:x.sell),rev=dir===1?sweepL&&chochUp&&bull&&c.c>ema20:sweepH&&chochDn&&bear&&c.c<ema20,poi=dir===1?poiBuy:poiSell,continuation=dir===1?strongBull&&pdi>mdi&&!htf60Bear:strongBear&&mdi>pdi&&!htf60Bull,against=dir===1?htfBear||htf60Bear:htfBull||htf60Bull,rangeOK=!isRange||(dir===1?rangeBuy||edge2edgeBuyPath:rangeSell||edge2edgeSellPath),location=dir===1?c.c<=mid||st.trend===1&&it.trend===1:c.c>=mid||st.trend===-1&&it.trend===-1;const candidate=scored.find(x=>x.dir===dir);return {raw:raw.length>0,structure:dir===1?bosUp||chochUp||iBosUp:bosDn||chochDn||iBosDn,candle:dir===1?bull:bear,htf:!against||rev||poi||continuation,range:rangeOK,location,notLate:Math.abs(c.c-ema20)/atr<=1.2,score:candidate?.score??0,scorePass:(candidate?.score??0)>=52,rr:candidate?.rr??null,decision:decision?.dir===dir?decision.source:'WAIT',reason:decision?.dir===dir?'READY':blockedReason||(!raw.length?'بدون مسیر فعال':'شرط‌های نهایی تکمیل نشده')}};const gateAudit={buy:auditSide(1),sell:auditSide(-1)};
+  // PRE candidate window is tracked separately; it is never reported as a confirmed trade.
+  for(const side of ['buy','sell'])if(pre[side]&&i>pre[side].bar&&i>pre[side].expires)pre[side]=null;
+  // Conservative ledger handling: stop wins if SL and TP are touched in the same OHLC bar; TP1 moves SL to BE.
+  for(const ledger of [sLedger,pLedger])for(const tr of ledger){if(!tr.open||i<=tr.bar)continue;const favorable=tr.dir===1?c.h-tr.entry:tr.entry-c.l,adverse=tr.dir===1?tr.entry-c.l:c.h-tr.entry;tr.mfe=Math.max(tr.mfe||0,favorable);tr.mae=Math.max(tr.mae||0,adverse);const stopHit=tr.dir===1?c.l<=tr.stop:c.h>=tr.stop,t1Hit=tr.dir===1?c.h>=tr.t1:c.l<=tr.t1,t2Hit=Number.isFinite(tr.t2)&&(tr.dir===1?c.h>=tr.t2:c.l<=tr.t2);if(stopHit){tr.open=false;tr.exit=tr.t1hit?'BE':'SL';tr.outcome=tr.exit;tr.exitBar=i;tr.exitPrice=tr.stop}else{if(t1Hit&&!tr.t1hit){tr.t1hit=true;tr.t1Bar=i;tr.stop=tr.entry;tr.status='TP1 · BE'}if(t2Hit){tr.open=false;tr.exit='TP2';tr.outcome='TP2';tr.exitBar=i;tr.exitPrice=tr.t2}}}
+  const idmBull=it.trend===1&&it.loOk&&it.lo!=null&&c.l<it.lo&&c.c>=it.lo,idmBear=it.trend===-1&&it.hiOk&&it.hi!=null&&c.h>it.hi&&c.c<=it.hi;const fibRange=st.hi!=null&&st.lo!=null?st.hi-st.lo:null,fib= fibRange>0?(st.loBar<st.hiBar?{0.236:st.hi-fibRange*.236,0.382:st.hi-fibRange*.382,0.5:st.hi-fibRange*.5,0.618:st.hi-fibRange*.618,0.786:st.hi-fibRange*.786}:{0.236:st.lo+fibRange*.236,0.382:st.lo+fibRange*.382,0.5:st.lo+fibRange*.5,0.618:st.lo+fibRange*.618,0.786:st.lo+fibRange*.786}):null;const sessionTime=(tz)=>{const parts=new Intl.DateTimeFormat('en-GB',{timeZone:tz,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(c.t).split(':').map(Number);return parts[0]*60+parts[1]},tokyo=sessionTime('Asia/Tokyo'),london=sessionTime('Europe/London'),ny=sessionTime('America/New_York'),sessions={asia:tokyo>=540&&tokyo<1080,london:london>=480&&london<990,newYork:ny>=480&&ny<1020};
+  const sLabels={S1:'OB/POI + رد قیمت',S2:'OB/POI + واکنش / جذب سفارش',S3:'OTE طلایی + FVG / ViG',S4:'Breaker Retest + تأیید کندلی'};const ssStatus=['S1','S2','S3','S4'].map(id=>{const ab=sSetup.buy[id],as=sSetup.sell[id],em=sset.find(x=>x.id===id),q=ab||as||em?.setup,side=ab?'buy':as?'sell':em?.side,stage=em?'SIGNAL':q?.stage||'WAIT';return {id,buy:!!ab||!!(em&&em.side==='buy'),sell:!!as||!!(em&&em.side==='sell'),stage,age:q?.age??0,label:sLabels[id],detail:q?`${side==='buy'?'BUY':'SELL'} · ${stage} · کندل ${q.age??0}`:'هنوز Setup معتبر تشکیل نشده'}});
+  latest={i,c,atr,ema20,ema34,ema50,rsi:ind.rsi[i],trend:st.trend,internalTrend:it.trend,localTrend,adx,pdi,mdi,flow,htf15:h15.bull?1:h15.bear?-1:0,htf60:h60.bull?1:h60.bear?-1:0,htf15State:h15,htf60State:h60,daily:daily[i],institutional:inst,structureEvents:structureEvents.slice(),sweepEvents:sweepEvents.slice(),gateAudit,idmBull,idmBear,fib,swingPoints,sessions,bosUp,bosDn,chochUp,chochDn,iBosUp,iBosDn,sweepL,sweepH,ph,pl,obs,breakers,fvgs,vigs,poiBuy,poiSell,buyOB,sellOB,isRange,rangeHi,rangeLo,mid,routes,sset:ssStatus,chosen,decision,blockedReason,finalSignals,pSignals,sSignals,sLedger,pLedger,activeOB:buyOB||sellOB,activeBB:breakers.find(z=>z.active),activeFVG:fvgs.find(z=>z.active),oteBuyOK,oteSellOK,pre:{...pre},rangeVotes,eff,bullVotes,bearVotes};
+ }
+ const l=latest,openP=pLedger.filter(x=>x.open).at(-1),openS=sLedger.filter(x=>x.open).at(-1),best=[openP,openS].filter(Boolean).sort((a,b)=>b.bar-a.bar)[0]||null,closed=[...sLedger,...pLedger].filter(x=>!x.open),stats={trades: sLedger.length+pLedger.length,closed:closed.length,tp1Hits:closed.filter(x=>x.t1hit).length,tp2Hits:closed.filter(x=>x.exit==='TP2').length,stopouts:closed.filter(x=>x.exit==='SL').length,breakeven:closed.filter(x=>x.exit==='BE').length,tp1Rate:closed.length?100*closed.filter(x=>x.t1hit).length/closed.length:null,avgMfe:closed.length?closed.reduce((a,x)=>a+(x.mfe||0),0)/closed.length:0,avgMae:closed.length?closed.reduce((a,x)=>a+(x.mae||0),0)/closed.length:0},allSetups=(l?.sset||[]).map(x=>({name:x.id+' · '+x.label,label:x.label,buy:x.buy,sell:x.sell,route:x.id,stage:x.stage,detail:x.detail,age:x.age}));return {profile,stats,setups:allSetups,routes:(l?.routes||[]),signals:(l?.finalSignals||[]).filter(x=>x.bar===n-1),pSignals:(l?.pSignals||[]).filter(x=>x.bar===n-1),sSignals:(sSignals||[]).filter(x=>x.bar===n-1),best,entry:best?.entry,stop:best?.stop,t1:best?.t1,t2:best?.t2,atr:l?.atr,trend:l?.localTrend,hi:l?.rangeHi,lo:l?.rangeLo,mid:l?.mid,compressed:l?.isRange,htf15:l?.htf15??0,htf60:l?.htf60??0,flow:l?.flow,structure:l,sLedger,pLedger,finalCount:finalSignals.length,pCount:pSignals.length,sCount:sSignals.length,blockedReason:l?.blockedReason,htfContexts:ctx};
+}
+
+
+
+function renderQuickDecision(r){
+ const fresh=[...(r.signals||[]).map(x=>({...x,source:'FINAL'})),...(r.pSignals||[]).map(x=>({...x,source:'P-TRADE'})),...(r.sSignals||[]).map(x=>({...x,source:'S1-S4'}))].sort((a,b)=>(+b.score||0)-(+a.score||0));
+ const issued=fresh[0]||null,active=r.best||null,b=issued||active,dir=issued?.dir||0,side=dir===1?'خرید':dir===-1?'فروش':'صبر',el=$('decisionState');
+ el.textContent=side;el.className='decision-state '+(dir===1?'buy':dir===-1?'sell':'wait');
+ $('decisionSub').textContent=issued?`سیگنال جدید روی آخرین کندل بسته‌شده · ${$('symbol').value.toUpperCase()} · ${$('interval').value}`:active?`سیگنال جدید صادر نشده · یک موقعیت باز از مسیر قبلی وجود دارد`:`هیچ سیگنال نهایی در آخرین کندل بسته‌شده صادر نشده · وضعیت WAIT`;
+ $('decisionScore').textContent=b?(Number.isFinite(+b.score)?Math.round(+b.score):'—'):'—';
+ const routeNames={1:'Fast Structure / Candle',2:'FVG / OB Retest',3:'Liquidity Sweep Reversal',4:'OTE مستقل',5:'Breaker مستقل',6:'PD Outer Edge',7:'Range Edge-to-Edge',8:'Trend Impulse',9:'Trend Pullback'};
+ const route=b?(b.source==='S1-S4'?`${b.engine} · مسیر مستقل S1–S4`:`${b.source||'FINAL'} · مسیر ${b.route??b.id??'—'} · ${b.name||routeNames[b.route??b.id]||'مسیر ورود'}`):'هیچ مسیر صادرکننده‌ای وجود ندارد';
+ $('decisionPath').textContent=(issued?'سیگنال صادرشده: ':active?'موقعیت باز قبلی: ':'وضعیت: ')+route;
+ $('quickEntry').textContent=b?fmt(b.entry):'—';$('quickStop').textContent=b?fmt(b.stop):'—';$('quickTp1').textContent=b?fmt(b.t1):'—';$('quickTp2').textContent=b?fmt(b.t2):'—';
+ setTf('tf1h',r.htf60>0?'صعودی':r.htf60<0?'نزولی':'خنثی',r.htf60);setTf('tf15',r.htf15>0?'صعودی':r.htf15<0?'نزولی':'خنثی',r.htf15);
+ const trend=r.trend||0;setTf('tf5',trend>0?'صعودی':trend<0?'نزولی':'خنثی',trend);
+ const flow=r.flow,flowDir=flow?(flow.delta>0?1:flow.delta<0?-1:0):0;setTf('tf1',flow?(flowDir>0?'خرید غالب':flowDir<0?'فروش غالب':'متعادل'):'بدون داده',flowDir);
+ $('decisionReason').textContent=issued?`تأییدها: HTF 15m ${r.htf15===dir?'همسو':'غیرهمسو/خنثی'} · HTF 1H ${r.htf60===dir?'همسو':'غیرهمسو/خنثی'} · ${flow?.quality||'کیفیت جریان 1m نامشخص'} · امتیاز مسیر ${issued.score??'—'}${fresh.length>1?` · ${fresh.length} مسیر در آخرین کندل سیگنال داده‌اند`:''}`:active?`ورود جدید صادر نشده؛ موقعیت قبلی هنوز در دفتر معاملات باز است. آمار تاریخی مربوط به همان مسیر و همان جهت است.`:`علت انتظار: ${r.blockedReason||'هیچ مسیر ورودی در کندل بسته‌شده اخیر تأیید نشده است.'}`;
+}
+
+function renderEngine(r){analysisResult=r;renderChartLatestPlan();$('engine').hidden=false;let sig=r.signals.length,ss=r.sSignals.length;if($('engineState'))$('engineState').textContent=`${r.profile} · FINAL ${sig} · P-TRADE ${r.pSignals?.length||0} · S1-S4 ${ss} · HTF ${r.htf15>0?'15↑':r.htf15<0?'15↓':'15↔'} / ${r.htf60>0?'1H↑':r.htf60<0?'1H↓':'1H↔'}`;
+ renderQuickDecision(r);
+ $('routeMetrics').innerHTML=r.setups.map(x=>{const closed=(r.sLedger||[]).filter(t=>t.engine===x.route&&!t.open),samples=closed.length,hits=closed.filter(t=>t.t1hit).length,rate=samples?100*hits/samples:null;return `<div class="metric"><small>${x.name}</small><strong class="${x.buy?'green':x.sell?'red':'gold'}">${x.stage&&x.stage!=='WAIT'?x.stage+' · ':''}${x.buy?'BUY':x.sell?'SELL':'WAIT'}</strong><span class="setup-history-inline">تاریخی TP1: <b>${rate===null?'—':rate.toFixed(1)+'٪'}</b> · ${samples} معامله بسته</span></div>`}).join('')+r.routes.map(x=>{const closed=(r.pLedger||[]).filter(t=>Number(t.route)===Number(x.id)&&!t.open),samples=closed.length,hits=closed.filter(t=>t.t1hit).length,rate=samples?100*hits/samples:null;return `<div class="metric"><small>FINAL ${x.id} · ${x.name}</small><strong class="${x.buy?'green':x.sell?'red':'gold'}">${x.buy?'BUY':x.sell?'SELL':'WAIT'}</strong><span class="setup-history-inline">تاریخی TP1: <b>${rate===null?'—':rate.toFixed(1)+'٪'}</b> · ${samples} معامله بسته</span></div>`}).join('')+`<div class="metric"><small>گیت‌های BUY</small><strong>${r.structure?.gateAudit?.buy?.decision==='WAIT'?`${r.structure.gateAudit.buy.raw?'RAW':'NO RAW'} · ${r.structure.gateAudit.buy.reason}`:'READY'}</strong></div><div class="metric"><small>گیت‌های SELL</small><strong>${r.structure?.gateAudit?.sell?.decision==='WAIT'?`${r.structure.gateAudit.sell.raw?'RAW':'NO RAW'} · ${r.structure.gateAudit.sell.reason}`:'READY'}</strong></div><div class="metric"><small>P-TRADE آخرین کندل</small><strong>${r.pSignals?.length?`${r.pSignals[0].dir===1?'BUY':'SELL'} · ${r.pSignals[0].score}`:'—'}</strong></div><div class="metric"><small>فعالیت نهادی</small><strong>${r.structure?.institutional?Object.entries(r.structure.institutional).filter(([k,v])=>v).map(([k])=>({strongAccum:'Strong Accum',passiveAccum:'Passive Accum',strongAbsorb:'Strong Absorb',passiveAbsorb:'Passive Absorb',hiddenAccum:'Hidden Accum',hiddenShort:'Hidden Short',aggressiveAccum:'Aggressive Accum',aggressiveDist:'Aggressive Dist'}[k])).join(' · ')||'—':'—'}</strong></div><div class="metric"><small>Order Flow 1m · نسبت حجم خرید</small><strong>${r.flow?`${r.flow.ratio.toFixed(1)}%`:'—'}</strong></div><div class="metric"><small>کیفیت داده 1m</small><strong>${r.flow?.quality||'—'}</strong></div><div class="metric"><small>POI فعال</small><strong>${r.structure?.poiBuy?'BUY':r.structure?.poiSell?'SELL':'—'}</strong></div><div class="metric"><small>رژیم بازار</small><strong>${r.compressed?'RANGE':'TREND / MIXED'}</strong></div><div class="metric"><small>IDM داخلی</small><strong>${r.structure?.idmBull?'IDM BUY':r.structure?.idmBear?'IDM SELL':'—'}</strong></div><div class="metric"><small>آمار معاملات بسته</small><strong>${r.stats?.closed||0} · TP1 ${r.stats?.tp1Rate==null?'—':r.stats.tp1Rate.toFixed(1)+'%'}</strong></div><div class="metric"><small>سشن فعال</small><strong>${r.structure?.sessions?Object.entries(r.structure.sessions).filter(([k,v])=>v).map(([k])=>({asia:'ASIA',london:'LONDON',newYork:'NEW YORK'}[k])).join(' · ')||'OFF':'—'}</strong></div>`;
+ // Removed duplicate hidden metrics mirror; routeMetrics is the single statistics renderer.
+ if(!r.best){$('tradePlan').textContent='در آخرین کندل بسته‌شده معامله بازی وجود ندارد. '+(r.blockedReason?'آخرین علت رد/انتظار: '+r.blockedReason:'هیچ مسیر ورودی فعال نشده است.')+' وضعیت مسیرها و گیت‌ها در بالا نمایش داده شده‌اند.';return}
+ let d=r.best.dir===1?'BUY':'SELL';$('tradePlan').innerHTML=`<b class="${d==='BUY'?'green':'red'}">${d} · ${r.best.source==='S1-S4'?`S1-S4 · ${r.best.engine}`:r.best.source|| (r.best.route?`FINAL مسیر ${r.best.route}`:r.best.engine)}</b><br>امتیاز: ${r.best.score??'—'} · ورود مرجع: ${fmt(r.best.entry)} · حدضرر ساختاری: ${fmt(r.best.stop)}<br>TP1: ${fmt(r.best.t1)} · TP2: ${fmt(r.best.t2)} · ATR: ${fmt(r.atr)}<br>MFE / MAE تا این لحظه: ${fmt(r.best.mfe||0)} / ${fmt(r.best.mae||0)}<br>سوگیری HTF: ۱۵m ${r.htf15===1?'صعودی':r.htf15===-1?'نزولی':'خنثی'} / ۱h ${r.htf60===1?'صعودی':r.htf60===-1?'نزولی':'خنثی'}<br>مدیریت: در برخورد TP1 حدضرر به نقطه ورود منتقل می‌شود؛ اگر SL و TP در یک کندل لمس شوند، SL مقدم است.`;
+}
+
+async function analyze(){let symbol=$('symbol').value.trim().toUpperCase(),interval=$('interval').value,limit=Number($('limit').value);if(!/^[A-Z0-9]{5,20}$/.test(symbol)){setStatus('نماد نامعتبر');return}updateTfLabels(interval);$('analyze').disabled=true;document.querySelectorAll('[data-interval]').forEach(b=>b.disabled=true);setStatus(`دریافت داده ${tfLabel(interval)}…`);try{
+ const ex=selectedExchange();if(ex==='BINANCE'&&!symbol.endsWith('USDT'))throw Error('برای بایننس نماد باید با USDT تمام شود؛ مانند BTCUSDT');const tfMin=tfMinutes(interval),usdtRate=ex==='BINANCE'?1:await fetchUsdtRate(),[raw,raw15,raw60,ltfRaw,rawD]=await Promise.all([
+  fetchKlines(symbol,interval,limit,usdtRate),fetchKlines(symbol,'15m',Math.min(10000,Math.max(500,Math.ceil(limit*tfMin/15))),usdtRate),fetchKlines(symbol,'1h',Math.min(10000,Math.max(300,Math.ceil(limit*tfMin/60))),usdtRate),interval==='5m'?fetchKlinesChunked(symbol,'1m',Math.min(50000,Math.max(500,limit*5)),usdtRate).catch(e=>{console.warn('1m LTF unavailable; OHLCV fallback will be used:',e);return []}):Promise.resolve([]),fetchKlines(symbol,'1d',Math.min(1000,Math.max(100,Math.ceil(limit*tfMin/1440)+5)),usdtRate).catch(()=>[])
+ ]);
+ const clean=a=>a.map(x=>({t:Number(x.t),o:Number(x.o),h:Number(x.h),l:Number(x.l),c:Number(x.c),v:Number(x.v||0),buyV:Number.isFinite(x.buyV)?Number(x.buyV):null})).filter(x=>[x.t,x.o,x.h,x.l,x.c,x.v].every(Number.isFinite));
+ let now=Date.now();const allMain=clean(raw).sort((a,b)=>a.t-b.t);const tfCheck=validateCandleInterval(allMain,interval);liveCandle=allMain.filter(x=>x.t+tfMin*60000>now+1000).at(-1)||null;candles=allMain.filter(x=>x.t+tfMin*60000<=now+1000);chartOffset=0;let h15=clean(raw15).filter(x=>x.t+900000<=now+1000),h60=clean(raw60).filter(x=>x.t+3600000<=now+1000);lowerCandles=clean(ltfRaw).filter(x=>x.t+60000<=now+1000);const dailyBars=clean(rawD);
+ if(candles.length<55)throw Error(`فقط ${candles.length} کندل بسته‌شده معتبر دریافت شد؛ حداقل ۵۵ کندل لازم است`);
+ const closes=candles.map(x=>x.c),last=closes.at(-1),ticker=await fetchPrice(symbol,usdtRate);
+ const htfContexts=buildHtfContexts(candles,h15,h60,tfMin,$('sensitivity').value,Number($('swingOverride').value)),last15=htfContexts.m15.at(-1),last60=htfContexts.m60.at(-1),bias15=last15?.bull?1:last15?.bear?-1:0,bias60=last60?.bull?1:last60?.bear?-1:0,smc=evaluateSMC(candles,{ltf:lowerCandles,tfMin,htfContexts,profile:$('profile').value,sensitivity:$('sensitivity').value,swingOverride:Number($('swingOverride').value),dailyBars}),e20=smc.structure.ema20,e50=smc.structure.ema50,rv=smc.structure.rsi,av=smc.structure.atr;renderEngine(smc);
+ $('market').hidden=$('analysis').hidden=$('chartPanel').hidden=false;$('pair').textContent=symbol+' · '+interval;$('dashPair').textContent=symbol+' · '+interval;$('marketCountdown').textContent=candleCountdown();$('lastprice').textContent=fmt(ticker?+ticker.lastPrice:last);$('dashPrice').textContent=fmt(ticker?+ticker.lastPrice:last);lastLivePrice=ticker?+ticker.lastPrice:last;startLivePrice();$('pricechange').textContent=ticker?`${fmt(+ticker.priceChangePercent)}% · تغییر ۲۴ساعته`:'قیمت آخرین کندل بسته‌شده';$('pricechange').className='change '+(ticker&&+ticker.priceChangePercent>=0?'green':'red');
+ $('marketmeta').textContent=`${candles.length.toLocaleString('fa-IR')}× ${tfLabel(interval)} · فاصله کندل تأیید شد · 15m ${h15.length.toLocaleString('fa-IR')} · 1h ${h60.length.toLocaleString('fa-IR')}${interval==='5m'?' · جریان 1m '+lowerCandles.length.toLocaleString('fa-IR'):''} · D ${dailyBars.length} · ${ex==='BINANCE'?'Binance':'Nobitex'} · آخرین کندل ${new Date(candles.at(-1).t).toLocaleTimeString('fa-IR')}`;drawChart();$('trend').textContent=e20>e50?'صعودی':e20<e50?'نزولی':'خنثی';$('trend').className=e20>e50?'green':e20<e50?'red':'gold';$('rsi').textContent=rv.toFixed(1);$('rsi').className=rv>70?'red':rv<30?'green':'gold';$('atr').textContent=fmt(av);
+ let pp=pivotsLast(candles,3);$('swing').textContent=pp.h&&pp.l?`H ${fmt(pp.h.v)} / L ${fmt(pp.l.v)}`:'داده ناکافی';let cap=+$('capital').value,risk=+$('risk').value;if(cap>0&&risk>0){let cash=cap*risk/100,trade=smc.best,dist=trade?Math.abs(trade.entry-trade.stop):av*1.5,qty=dist?cash/dist:0;$('riskresult').innerHTML=`<div class="structure-report"><div class="structure-section-title"><span class="structure-number">۱</span><b>مدیریت ریسک</b></div><div class="structure-line"><span>ریسک مجاز</span><b>${fmt(cash)} USDT</b></div><div class="structure-line"><span>فاصله حدضرر</span><b>${fmt(dist)}</b></div><div class="structure-line"><span>حجم نظری</span><b>${fmt(qty)} واحد</b></div><div class="structure-foot">${trade?'محاسبه بر اساس پلن فعال':'برآورد ۱٫۵ ATR؛ چون پلن فعالی وجود ندارد'}</div></div>`}else $('riskresult').textContent='سرمایه و ریسک را بررسی کنید.';
+ let fl=smc.flow,ltfText=interval==='5m'?`حجم جهت‌دار ۱m: ${fl?.ratio.toFixed(1)??'—'}% خرید · دلتا: ${fmt(fl?.delta||0)} · POC کندل ۱m با بیشترین حجم: ${fl?.poc?fmt(fl.poc):'—'} · ${fl?.quality||'—'}`:'داده جریان ۱m برای این تایم‌فریم محاسبه نشده است';
+ const biasLabel=v=>v===1?'صعودی':v===-1?'نزولی':'خنثی';
+ $('analysistext').innerHTML=`<div class="structure-report">
+ <section class="structure-group"><div class="structure-section-title"><span class="structure-number">۲</span><b>جهت روند و میانگین‌ها</b></div><div class="structure-line"><span>EMA 20</span><b>${fmt(e20)}</b></div><div class="structure-line"><span>EMA 50</span><b>${fmt(e50)}</b></div><div class="structure-line"><span>سوگیری ۱۵ دقیقه</span><b>${biasLabel(bias15)}</b></div><div class="structure-line"><span>سوگیری ۱ ساعت</span><b>${biasLabel(bias60)}</b></div></section>
+ <section class="structure-group"><div class="structure-section-title"><span class="structure-number">۳</span><b>جریان حجم و دلتا</b></div><div class="structure-line"><span>اطلاعات جریان</span><b>${ltfText}</b></div><div class="structure-foot">دلتا از جهت بدنه کندل‌های ۱m محاسبه می‌شود؛ معادل Bid/Ask واقعی نیست.</div></section>
+ <section class="structure-group"><div class="structure-section-title"><span class="structure-number">۴</span><b>سطوح روزانه</b></div><div class="structure-line"><span>PDH / PDL</span><bdi>${smc.structure.daily?.pdh?fmt(smc.structure.daily.pdh):'—'} / ${smc.structure.daily?.pdl?fmt(smc.structure.daily.pdl):'—'}</bdi></div><div class="structure-line"><span>CDH / CDL</span><bdi>${fmt(smc.structure.daily?.cdh||0)} / ${fmt(smc.structure.daily?.cdl||0)}</bdi></div></section>
+ <section class="structure-group"><div class="structure-section-title"><span class="structure-number">۵</span><b>توضیح محاسبات</b></div><p class="structure-foot">POC برابر Close کندل ۱m با بیشترین حجم در بازه بررسی‌شده است؛ این مقدار معادل Volume-at-Price دفتر سفارش نیست.</p></section>
+ </div>`;$('updated').textContent=new Date().toLocaleTimeString('fa-IR');setStatus(`${ex==='BINANCE'?'بایننس':'نوبیتکس'} · ${tfLabel(interval)} · متصل`,true)
+ }catch(e){setStatus('اتصال ناموفق');alert('اجرای تحلیل یا نمایش نتیجه ناموفق بود. جزئیات: '+e.message);console.error('Exchange connection diagnostic:',e)}finally{$('analyze').disabled=false;document.querySelectorAll('[data-interval]').forEach(b=>b.disabled=false)}}
+// HRS persistence: remember user settings and automatically restore the last analysis after refresh.
+const HRS_PREF_KEY='hrs_dashboard_preferences_v1';
+const HRS_PREF_IDS=['exchange','symbol','interval','limit','visible','profile','sensitivity','swingOverride','capital','risk','live'];
+function hrsLoadPreferences(){try{const saved=JSON.parse(localStorage.getItem(HRS_PREF_KEY)||'{}');for(const id of HRS_PREF_IDS){const el=$(id);if(el&&saved[id]!==undefined){if(el.type==='checkbox')el.checked=!!saved[id];else el.value=String(saved[id]);}}}catch(e){console.warn('HRS preferences restore skipped',e)}}
+function hrsSavePreferences(){try{const saved={};for(const id of HRS_PREF_IDS){const el=$(id);if(el)saved[id]=el.type==='checkbox'?el.checked:el.value;}localStorage.setItem(HRS_PREF_KEY,JSON.stringify(saved));}catch(e){console.warn('HRS preferences could not be saved',e)}}
+hrsLoadPreferences();
+HRS_PREF_IDS.forEach(id=>{const el=$(id);if(el){el.addEventListener('change',hrsSavePreferences);if(id==='symbol'||id==='capital'||id==='risk'||id==='swingOverride')el.addEventListener('input',hrsSavePreferences);}});
+$('exchange').dispatchEvent(new Event('change'));updateTfLabels();document.querySelectorAll('[data-exchange]').forEach(b=>b.addEventListener('click',()=>{if($('exchange').value!==b.dataset.exchange){$('exchange').value=b.dataset.exchange;$('exchange').dispatchEvent(new Event('change'))}}));document.querySelectorAll('[data-interval]').forEach(b=>b.addEventListener('click',()=>{if(b.disabled)return;const v=b.dataset.interval,changed=$('interval').value!==v;if(changed){$('interval').value=v;$('interval').dispatchEvent(new Event('change'))}document.querySelectorAll('[data-interval]').forEach(x=>x.classList.toggle('active',x===b));updateTfLabels(v);if(changed&&!$('market').hidden)analyze()}));$('analyze').onclick=analyze;document.querySelectorAll('[data-symbol]').forEach(b=>b.onclick=()=>{$('symbol').value=b.dataset.symbol;document.querySelectorAll('[data-symbol]').forEach(x=>x.classList.toggle('active',x===b));analyze()});$('visible').onchange=()=>{chartOffset=0;drawChart()};$('live').onchange=()=>{clearInterval(timer);if($('live').checked){analyze();timer=setInterval(analyze,60000);startLivePrice()}else{clearInterval(timer);setStatus('قیمت همچنان لحظه‌ای است؛ به‌روزرسانی خودکار تحلیل خاموش شد')}};
+const chartZoomSteps=[25,50,75,100,150,200,300,500,750,1000,1500,2000,3000,5000,7500,10000];
+function setVisibleCount(n){const v=Math.max(25,Math.min(10000,Math.round(Number(n)||3000)));$('visible').value=String(v);if($('visible').value!==String(v)){const opt=document.createElement('option');opt.value=String(v);opt.textContent=String(v);$('visible').appendChild(opt);$('visible').value=String(v)}chartOffset=Math.min(chartOffset,Math.max(0,candles.length-v));drawChart()}
+function stepChartZoom(direction){let v=Number($('visible').value)||3000,idx=chartZoomSteps.findIndex(x=>x>=v);if(idx<0)idx=chartZoomSteps.length-1;if(chartZoomSteps[idx]===v&&direction<0)idx--;else if(chartZoomSteps[idx]===v&&direction>0)idx++;else if(direction>0)idx=Math.max(0,idx-1);idx=Math.max(0,Math.min(chartZoomSteps.length-1,idx));setVisibleCount(chartZoomSteps[idx])}
+function stepPriceZoom(direction){chartPriceScale=Math.max(.04,Math.min(30,chartPriceScale*(direction>0?1.55:.645)));drawChart()}
+$('zoomIn').onclick=()=>stepChartZoom(-1);$('zoomOut').onclick=()=>stepChartZoom(1);
+$('priceZoomIn').onclick=()=>stepPriceZoom(1);$('priceZoomOut').onclick=()=>stepPriceZoom(-1);
+$('chartFit').onclick=()=>{chartOffset=0;setVisibleCount(10000)};
+$('chartReset').onclick=()=>{chartOffset=0;chartPriceScale=1;chartPriceShift=0;setVisibleCount(3000)};
+$('chartWrap').addEventListener('wheel',e=>{if(!candles.length)return;e.preventDefault();if(e.shiftKey||Math.abs(e.deltaX)>Math.abs(e.deltaY)){setVisibleCount(Number($('visible').value)*(e.deltaY<0||e.deltaX<0?.85:1.18))}else{chartPriceScale=Math.max(.04,Math.min(30,chartPriceScale*(e.deltaY<0?1.25:.8)));drawChart()}},{passive:false});
+const chartEl=$('chart');
+chartEl.style.touchAction='none';
+chartEl.addEventListener('pointerdown',e=>{
+ if(!candles.length)return;
+ const r=chartEl.getBoundingClientRect();
+ chartPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ chartPointer={x:e.clientX-r.left,y:e.clientY-r.top};
+ try{chartEl.setPointerCapture(e.pointerId)}catch(_){}
+ if(chartPointers.size>=2){
+  const pts=[...chartPointers.values()],dx=Math.abs(pts[0].x-pts[1].x),dy=Math.abs(pts[0].y-pts[1].y);
+  pinchStart={dx:Math.max(1,dx),dy:Math.max(1,dy),distance:Math.max(1,Math.hypot(dx,dy)),visible:Number($('visible').value),priceScale:chartPriceScale};
+  chartDrag=null;
+ }else chartDrag={x:e.clientX,y:e.clientY,lastOffset:chartOffset,lastShift:chartPriceShift,moved:false};
+ e.preventDefault();drawChart();
+},{passive:false});
+chartEl.addEventListener('pointermove',e=>{
+ const r=chartEl.getBoundingClientRect();
+ if(chartPointers.has(e.pointerId))chartPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ chartPointer={x:e.clientX-r.left,y:e.clientY-r.top};
+ if(chartPointers.size>=2&&pinchStart){
+  const pts=[...chartPointers.values()],dx=Math.abs(pts[0].x-pts[1].x),dy=Math.abs(pts[0].y-pts[1].y);
+  // A conventional two-finger pinch scales both axes: spread = zoom in, pinch = zoom out.
+  const currentDistance=Math.max(12,Math.hypot(dx,dy));
+  const rawRatio=currentDistance/pinchStart.distance;
+  // کاهش حساسیت ژست دو انگشتی: حرکت‌های کوچک نادیده گرفته می‌شوند و زوم نرم‌تر است.
+  const pinchRatio=Math.abs(rawRatio-1)<.035?1:Math.pow(rawRatio,.42);
+  setVisibleCount(pinchStart.visible/pinchRatio);
+  chartPriceScale=Math.max(.04,Math.min(30,pinchStart.priceScale*pinchRatio));
+ }else if(chartDrag){
+  const moveX=e.clientX-chartDrag.x,moveY=e.clientY-chartDrag.y;
+  if(!chartDrag.moved&&Math.hypot(moveX,moveY)<7){e.preventDefault();drawChart();return}
+  chartDrag.moved=true;
+  const shown=Math.max(1,Math.min(Number($('visible').value),candles.length-chartDrag.lastOffset)),slots=shown+(liveCandle&&chartDrag.lastOffset===0?1:0),step=Math.max(1,(r.width-86)/slots);
+  chartOffset=Math.max(0,Math.min(Math.max(0,candles.length-1),Math.round(chartDrag.lastOffset+(moveX*.62)/step)));
+  chartPriceShift=Math.max(-5,Math.min(5,chartDrag.lastShift+(moveY*.62)/Math.max(100,r.height-100)));
+ }
+ e.preventDefault();drawChart();
+},{passive:false});
+const endChartDrag=e=>{
+ chartPointers.delete(e.pointerId);
+ if(chartPointers.size<2)pinchStart=null;
+ chartDrag=chartPointers.size===1?{x:[...chartPointers.values()][0].x,y:[...chartPointers.values()][0].y,lastOffset:chartOffset,lastShift:chartPriceShift}:null;
+};
+chartEl.addEventListener('pointerup',endChartDrag);chartEl.addEventListener('pointercancel',endChartDrag);chartEl.addEventListener('lostpointercapture',endChartDrag);
+chartEl.addEventListener('pointerleave',()=>{if(!chartDrag&&chartPointers.size===0){chartPointer=null;drawChart()}});
+let resizeStartY=0,resizeStartH=0,dragResize=false;const grip=$('chartResize');grip.addEventListener('pointerdown',e=>{dragResize=true;resizeStartY=e.clientY;resizeStartH=$('chartWrap').getBoundingClientRect().height;grip.setPointerCapture(e.pointerId);e.preventDefault()});grip.addEventListener('pointermove',e=>{if(!dragResize)return;chartHeight=Math.max(280,Math.min(window.innerHeight*.90,resizeStartH+e.clientY-resizeStartY));$('chartWrap').style.height=chartHeight+'px';drawChart()});grip.addEventListener('pointerup',()=>dragResize=false);grip.addEventListener('pointercancel',()=>dragResize=false);
+if('ResizeObserver'in window){new ResizeObserver(()=>drawChart()).observe($('chartWrap'))}else window.addEventListener('resize',drawChart);window.addEventListener('resize',drawChart);
+
+// Page navigation only changes visibility; existing analysis and signal functions are untouched.
+(function(){
+ const tabs=[...document.querySelectorAll('.nav-item[data-page]')];
+ function showPage(name){
+  document.querySelectorAll('[data-page-panel]').forEach(p=>p.classList.toggle('active',p.dataset.pagePanel===name));
+  tabs.forEach(b=>b.classList.toggle('active',b.dataset.page===name));
+  window.scrollTo({top:0,behavior:'instant'});
+  try{history.replaceState(null,'','#'+name)}catch(e){}
+  if(name==='chart'){requestAnimationFrame(()=>{window.dispatchEvent(new Event('resize'));if(typeof drawChart==='function')drawChart()})}
+ }
+ tabs.forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+ const initial=(location.hash||'').slice(1);if(tabs.some(b=>b.dataset.page===initial))showPage(initial);else showPage('dashboard');
+ window.hrsShowPage=showPage;
+})();
+// Refresh recovery: reconnect to the selected public market-data source and rebuild the dashboard automatically.
+setTimeout(()=>{
+ try{
+  const saved=JSON.parse(localStorage.getItem(HRS_PREF_KEY)||'{}');
+  if(saved.live===true){$('live').checked=true;}
+  analyze();
+  if($('live').checked){clearInterval(timer);timer=setInterval(analyze,60000);startLivePrice();}
+ }catch(e){console.error('HRS automatic restore failed:',e)}
+},350);
+
+</script>
+
+
+</body></html>
+<style>
+@supports(padding:max(0px)){body{padding-bottom:calc(82px + max(env(safe-area-inset-bottom),0px))}}
+.mobile-nav{position:fixed!important;inset:auto 0 0 0!important;z-index:99999!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}
+@media(min-width:700px){.mobile-nav{left:50%!important;right:auto!important;bottom:0!important;transform:translateX(-50%)!important;width:min(900px,100%)!important}}
+
+
+<style id="hrs-nav-hard-fixed">
+/* Navigation is fixed to the page viewport; scrolling must never reposition it. */
+html, body { min-height: 100%; }
+body { padding-bottom: calc(74px + env(safe-area-inset-bottom)) !important; }
+body > .mobile-nav,
+.mobile-nav {
+  position: fixed !important;
+  inset: auto 0 0 0 !important;
+  top: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  transform: none !important;
+  z-index: 2147483647 !important;
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  grid-auto-flow: column !important;
+  grid-auto-rows: 52px !important;
+  gap: 4px !important;
+  box-sizing: border-box !important;
+  padding: 5px 5px calc(5px + env(safe-area-inset-bottom)) !important;
+  background: rgba(5,12,25,.98) !important;
+  border: 1px solid #294568 !important;
+  border-bottom: 0 !important;
+  border-radius: 18px 18px 0 0 !important;
+  overflow: hidden !important;
+  will-change: auto !important;
+}
+</style>
+
+<style id="hrs-chart-page-isolation-fix">
+/* Chart UI is exclusive to the Chart tab. Prevent legacy global styles or
+   visibility toggles from leaking chart controls into any other page. */
+.app-page:not(#page-chart) #chartPanel,
+.app-page:not(#page-chart) #market,
+.app-page:not(#page-chart) #chartWrap,
+.app-page:not(#page-chart) #chart,
+.app-page:not(#page-chart) .chart-panel,
+.app-page:not(#page-chart) .chart-tools,
+.app-page:not(#page-chart) .chart-wrap,
+.app-page:not(#page-chart) .chart-resize,
+.app-page:not(#page-chart) .chart-latest-plan { display:none !important; }
+#page-chart #market,
+#page-chart #chartPanel { display:block; }
+#page-chart #chartPanel[hidden],
+#page-chart #market[hidden] { display:none !important; }
+</style>
